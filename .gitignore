@@ -66,7 +66,7 @@ Temporary Items
 [Rr]elease/
 [Rr]eleases/
 x64/
-build/
+# build/
 bld/
 [Bb]in/
 [Oo]bj/
