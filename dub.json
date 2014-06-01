@@ -8,7 +8,6 @@
         "tango": "~d2port"
     },
 
-
     "importPaths": [
         "ddl/"
     ],
