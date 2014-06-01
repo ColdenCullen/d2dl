@@ -1,6 +1,6 @@
 /+
 	Copyright (c) 2005-2007 Eric Anderton, Tomasz Stachowiak
-        
+
 	Permission is hereby granted, free of charge, to any person
 	obtaining a copy of this software and associated documentation
 	files (the "Software"), to deal in the Software without
@@ -48,22 +48,22 @@ version(Stacktrace){
 }
 /**
 	Exception class used exclusively by the Linker.
-	
+
 	LinkModuleException are generated when the linker cannot resolve a module during the linking process.
 */
 class LinkModuleException : Exception{
 	DynamicModule mod;
-	
+
 	/**
 		Module that prompted the link exception.
 	*/
 	DynamicModule reason(){
 		return this.mod;
 	}
-	
+
 	/**
 		Constructor.
-		
+
 		Params:
 			reason = the module that prompts the exception
 	*/
@@ -75,17 +75,17 @@ class LinkModuleException : Exception{
 
 class ModuleCtorError : Exception{
 	ModuleInfo mod;
-	
+
 	/**
 		Module that prompted the link exception.
 	*/
 	ModuleInfo reason(){
 		return this.mod;
 	}
-	
+
 	/**
 		Constructor.
-		
+
 		Params:
 			reason = the module that prompts the exception
 	*/
@@ -110,39 +110,39 @@ struct LinkerBehavior {
 */
 class Linker{
 	public LinkerBehavior behavior;// bool autoRunModuleCtors = true;
-	
-	
+
+
 	protected LoaderRegistry registry;
-	/** 
+	/**
 		Library list for libraries used for linking.
-		
+
 		The implementation here is deliberately simple -- some would call it brain-dead.
-		The developer is therefore strongly encouraged to subclass this in order to 
+		The developer is therefore strongly encouraged to subclass this in order to
 		develop more sophisticated linking and library management behaviors.
-		
+
 		The order of insertion into the library list is used as a priority scheme
-		when attempting to link new modules into the runtime.  The first library 
+		when attempting to link new modules into the runtime.  The first library
 		added to the linker should be the current in-situ library, should linking
 		to classes and types in the current runtime be a requirement.  In any case
 		the next candidates for addition to the linker should be the runtime libraries
 		in no particular order.
-		
+
 		The linker will attept to link against the first library first, and so on
 		down the list.
 	*/
 	protected DynamicLibrary[] libraries;
-	
-	/** 
+
+	/**
 		The linker uses an LoaderRegistry to handle internal library dependencies
 		automatically, such that the developer can more easily automate linking behavior.
-			
+
 		Params:
 			registry = the LoaderRegistry to use when loading binaries.
 	*/
 	public this(LoaderRegistry registry){
 		this.registry = registry;
 	}
-	
+
 	/**
 		Returns: the current registry
 	*/
@@ -160,27 +160,27 @@ class Linker{
 
 	/**
 		Initalizes a ModuleInfo instance from a DynamicModule.
-		
-		From here on the provided library 
+
+		From here on the provided library
 	*/
 	protected void initModule(ModuleInfo m, int skip){
 		if(m is null) return;
 		if (m.flags & MIctordone) return;
 
 		debug debugLog("this module: {0:X8}",cast(void*)m);
-		debug debugLog("(name: {0:X8} %d)",m.name.ptr,m.name.length);		
+		debug debugLog("(name: {0:X8} %d)",m.name.ptr,m.name.length);
 		debug debugLog("(ctor: {0:X8})",cast(void*)(m.ctor));
 		debug debugLog("(dtor: {0:X8})",cast(void*)(m.dtor));
 		debug debugLog("Module: {0}\n",m.name);
-		
+
 		if (m.ctor || m.dtor)
 		{
 		    if (m.flags & MIctorstart)
 		    {	if (skip)
 			    return;
-				throw new ModuleCtorError(m);				
+				throw new ModuleCtorError(m);
 		    }
-		    
+
 		    m.flags |= MIctorstart;
 		    debug debugLog("running imported modules ({0})...",m.importedModules.length);
 		    foreach(ModuleInfo imported; m.importedModules){
@@ -194,7 +194,7 @@ class Linker{
 			debug debugLog("done running ctor");
 		    m.flags &= ~MIctorstart;
 		    m.flags |= MIctordone;
-	
+
 		    //TODO: Now that construction is done, register the destructor
 		}
 		else
@@ -206,15 +206,15 @@ class Linker{
 			    initModule(imported,1);
 			    debug debugLog("-done.");
 		    }
-		}    
+		}
 	}
-	
-	
+
+
 	private void selfResolveAll() {
 		foreach (lib; this.libraries) {
 			foreach (mod; lib.getModules) {
 				if (mod.isResolved) continue;
-				
+
 				foreach (ref sym; mod.getSymbols) {
 					if (SymbolType.Weak == sym.type) {
 						sym.type = SymbolType.Strong;
@@ -225,42 +225,42 @@ class Linker{
 			}
 		}
 	}
-	
-	
+
+
 	public void checkResolved(DynamicLibrary lib, void delegate(DynamicModule, ExportSymbolPtr) errHandler = null) {
 		foreach (mod; lib.getModules) {
 			if (mod.isResolved) continue;
-			
+
 			foreach (ref sym; mod.getSymbols) {
 				if (SymbolType.Unresolved == sym.type) {
 					if (errHandler !is null) {
 						errHandler(mod, &sym);
 					} else {
 						char[] ext = sym.isExternal ? "external" : "local";
-						throw new DDLException("cannot resolve symbol: [{0:X}] {1} {2} {3}"\n, cast(uint)sym.address, sym.getTypeName(), ext, sym.name);
+						throw new DDLException("cannot resolve symbol: [{0:X}] {1} {2} {3}\n", cast(uint)sym.address, sym.getTypeName(), ext, sym.name);
 					}
 				}
 			}
 		}
 	}
-	
-	
+
+
 	public void runModuleCtors(ModuleSet moduleSet) {
 		foreach(mod, moduleInfo; moduleSet) {
 			debug debugLog("running {0} init at [{1:8X}]", mod, cast(void*)moduleInfo);
 			this.initModule(moduleInfo, 0);
 		}
 	}
-	
-	
-	alias ModuleInfo[char[]] ModuleSet;	
-	
+
+
+	alias ModuleInfo[char[]] ModuleSet;
+
 	public void link(DynamicModule mod, inout ModuleSet moduleSet, bool canSelfResolve, int callDepth = 0) {
 		if (mod.isLinking) {
 			return;
 		}
 		mod.isLinking = true;
-		
+
 		//printf("Linking module %.*s"\n, mod.getName);
 
 		auto modSymbols = mod.getSymbols();
@@ -268,25 +268,25 @@ class Linker{
 			// outsource all symbols when commented out
 			// this is equivalent to ignoring multiple symbol definitions and choosing the 'first' one
 			// should probably be driven by some flexible linking mechanism
-			
+
 			if (SymbolType.Strong == sym.type && (!behavior.replaceStrongSymbols || callDepth > 0)) {
 				continue;
 			}
 
 			//printf("Examining %.*s symbol %.*s in %.*s"\n, sym.getTypeName, sym.name, mod.getName);
-			
+
 			foreach (lib; this.libraries) {
 				auto otherMod = lib.getModuleForSymbol(sym.name);
 				if (otherMod is null || otherMod is mod) {
 					continue;
 				}
-				
+
 				if (!otherMod.isResolved) {
 					this.link(otherMod, moduleSet, true, callDepth+1);
 				}
-				
+
 				auto otherSym = lib.getSymbol(sym.name);//otherMod.getSymbol(sym.name);
-				
+
 				//if (SymbolType.Unresolved != otherSym.type) {
 				if (
 					SymbolType.Strong == otherSym.type
@@ -311,12 +311,12 @@ class Linker{
 
 		mod.resolveFixups();
 		//mod.isLinking = false;
-		
+
 		foreach (ref sym; modSymbols) {
 			version (Stacktrace){
 				if (sym.address !is null) {
 					//printf("symbol %.*s line: %d\n", symbol.name, symbol.lineNumber);
-					regist_cb((sym.name ~ \0).ptr, sym.address);
+					regist_cb((sym.name ~ '\0').ptr, sym.address);
 					addDebugLineInfo__(cast(uint)sym.address, sym.lineNumber, mod.getName);
 				}
 			}
@@ -326,7 +326,7 @@ class Linker{
 			if (sym.address is null || sym.isExternal) {
 				continue;
 			}
-			
+
 			char[] suffix = `__ModuleInfoZ`;
 			if (sym.name.length > suffix.length && sym.name[$ - suffix.length .. $] == suffix) {
 				debug debugLog("Found moduleinfo for {0} at [{1:8X}] {2}", mod.getName, sym.address, sym.name);
@@ -335,8 +335,8 @@ class Linker{
 			}
 		}
 	}
-	
-	
+
+
 	private void finishLinking() {
 		foreach (lib; this.libraries) {
 			foreach (mod; lib.getModules) {
@@ -344,47 +344,47 @@ class Linker{
 			}
 		}
 	}
-	
-	
+
+
 	/*
 		This implementation has problems with circular dependencies across modules. I've replaced
 		it with one that doesn't do strict checking of SymbolType and isResolved.
 		To account for the change, I had to include a function to check the status of the linking.
-		
+
 		checkResolved(lib) will by default check if every symbol in the lib is Strong and throw an exception.
 		It can be given a handler to do more fancy unresolved symbol handling.
-		
+
 		- h3r3tic, 2008-04-21
 	*/
-	
-		
+
+
 	/**
 		Links a module against the linker's internal cross-reference.
-		
+
 		This implementation performs a long search of modules, then discrete symbols in the
 		cross-reference.
-		
-		The parameter canSelfResolve is passed as 'true' for registraion variants of link 
+
+		The parameter canSelfResolve is passed as 'true' for registraion variants of link
 		routines.
-		
+
 		moduleSet a set of modules that need initalization following the link pass.
 	*/
 	/+public void link(DynamicModule mod, inout ModuleSet moduleSet, bool canSelfResolve){
 		uint i;
-		
+
 		//protect against infinite recursion here by returning early
 		//by this, we count on the module being resolved further up the call stack
 		if(mod.isLinking) return;
-		
+
 		mod.isLinking = true;
-		
+
 		if (canSelfResolve) printf("(Can self-resolve) ");
 		debug debugLog("Linking module: {0}",mod.getName);
 		printf("Linking module %.*s"\n, mod.getName);
-		
+
 		auto moduleSymbols = mod.getSymbols();
 		printf("Number of symbols: %d"\n, moduleSymbols.length);
-		
+
 		for(i=0; i<moduleSymbols.length; i++){
 			auto symbol = &(moduleSymbols[i]);
 			printf("Pre-examining %.*s symbol %.*s in %.*s"\n, symbol.getTypeName, symbol.name, mod.getName);
@@ -392,12 +392,12 @@ class Linker{
 
 		for(i=0; i<moduleSymbols.length; i++){
 			auto symbol = &(moduleSymbols[i]);
-			
+
 			printf("Examining %.*s symbol %.*s in %.*s"\n, symbol.getTypeName, symbol.name, mod.getName);
-			
+
 			// ensure we're only linking weak and unresolved symbols
 			if(symbol.type == SymbolType.Strong) continue;
-			
+
 			// resolve a dependency from out of the registry
 			debug debugLog("searching %d registered libs",this.libraries.length);
 			foreach(lib; this.libraries){
@@ -432,18 +432,18 @@ class Linker{
 				bool isWeak = symbol.type == SymbolType.Weak;
 				throw new DDLException("cannot resolve symbol: ({0}) [{1:8X}] {2} {3} {4}" ~ (isWeak ? " the symbol is weak" : "") ~ \n,self,cast(uint)symbol.address,symbol.getTypeName(),ext,symbol.name);
 			}
-			
+
 			nextSymbol:
 			{} // satisfy compiler
 		}
-				
+
 		mod.resolveFixups();
 		mod.isLinking = false;
-		
+
 		if(!mod.isResolved()){
 			throw new LinkModuleException(mod);
 		}
-		
+
 		debug debugLog("mod is resolved: {0}",mod.toString());
 
 		auto allSymbols = mod.getSymbols();
@@ -465,36 +465,36 @@ class Linker{
 			}
 		}
 	}+/
-	
+
 	/**
 		Links a library against the linker's internal cross-reference.
-		
+
 		There is a subtle difference between linking a lib and linking a lib that has been
 		added to the cross-reference.  If every module in the lib is merely dependent upon
-		modules that exist in the cross-reference already, then just calling link will do 
+		modules that exist in the cross-reference already, then just calling link will do
 		the task.  Otherwise, the lib should be added to the cross-reference first, before
 		proceeding with the actual link.
-		
+
 		Weak symbol resolution, mostly D templates, will not ocurr for the library passed
 		in, unless it is already registered.  The reason behind this restriction is to
 		ensure that all libraries that are linked by a given linker, reference the same
 		set of common weak symbols.
-				
+
 		Examples:
 		---
 		DynamicLibrary lib;
 		Linker linker;
-		
+
 		linker.register(lib); // add to xref first
 		linker.link(lib); // link in the library and its aggregate modules
 		---
 	*/
 	public ModuleSet link(DynamicLibrary lib){
 		ModuleSet moduleSet;
-		
+
 		// determine registration status
 		bool canSelfResolve = this.isRegistered(lib);
-		
+
 		// link
 		foreach(DynamicModule mod; lib.getModules) {
 			this.link(mod, moduleSet, canSelfResolve);
@@ -502,7 +502,7 @@ class Linker{
 
 		selfResolveAll();
 		finishLinking();
-		
+
 		/+// init - run whatever initalizers are pending
 		foreach(mod,moduleInfo; moduleSet){
 			debug debugLog("running {0} init at [{1:8X}]",mod,cast(void*)moduleInfo);
@@ -510,23 +510,23 @@ class Linker{
 		}
 	//	_moduleCtor2(moduleSet.values,0);
 	+/
-	
+
 		if (behavior.runModuleCtors) {
 			runModuleCtors(moduleSet);
 		}
-	
+
 		return moduleSet;
 	}
-	
+
 	/**
-		Loads a library for the filename. 
-		
-		If the attrStdVersion parameter is supplied this is matched against the "std.version" 
+		Loads a library for the filename.
+
+		If the attrStdVersion parameter is supplied this is matched against the "std.version"
 		attribute in the supplied library.  If the attribute doesn't exist, and or the
 		attrStdVersion attribute is omitted or set to "", then the library is loaded anyway.
 		Otherwise, should attrStdVersion not match the "std.version" attribute, the method
-		throws an exception.		
-		
+		throws an exception.
+
 		Params:
 		filename = the filename of the library to load
 		attrStdVersion = (optional) value to match to attribute "std.version" in the loaded library.
@@ -535,7 +535,7 @@ class Linker{
 		DynamicLibrary result = registry.load(filename,attrStdVersion);
 		return result;
 	}
-	
+
 	/**
 		Registers a library with the linker to be used during link operations.
 	*/
@@ -546,11 +546,11 @@ class Linker{
 		}
 		libraries ~= lib;
 	}
-		
-	
-	/** 
+
+
+	/**
 		Loads a DDL library and registers it with this linker.
-		
+
 		Returns: the DynamicLibrary that corresponds to filename
 		Params:
 			filename = the file name of the library to load
@@ -560,10 +560,10 @@ class Linker{
 		register(result);
 		return result;
 	}
-	
-	/** 
+
+	/**
 		Loads a DDL library and links it against all registered libraries.
-		
+
 		Returns: the DynamicLibrary that corresponds to filename
 		Params:
 			filename = the file name of the library to load
@@ -573,10 +573,10 @@ class Linker{
 		link(result);
 		return result;
 	}
-	
-	/** 
+
+	/**
 		Loads a DDL library, links it against all registered libraries, and registers it.
-		
+
 		Returns: the DynamicLibrary that corresponds to filename
 		Params:
 			filename = the file name of the library to load
@@ -587,13 +587,13 @@ class Linker{
 		register(result);
 		return result;
 	}
-	
+
 	/**
 		Returns true if the library provided is registered with this linker.
 	*/
 	public bool isRegistered(DynamicLibrary lib){
 		foreach(registeredLib; this.libraries){
-			if(registeredLib == lib) return true; 
+			if(registeredLib == lib) return true;
 		}
 		return false;
 	}
