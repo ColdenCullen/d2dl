@@ -23,49 +23,52 @@
     OTHER DEALINGS IN THE SOFTWARE.
 +/
 /**
-    Authors: Lars Ivar Igesund, Eric Anderton
-    License: BSD Derivative (see source for details)
-    Copyright: 2005-2006 Lars Ivar Igesund, Eric Anderton
-*/
+ * Authors: Lars Ivar Igesund, Eric Anderton
+ * License: BSD Derivative (see source for details)
+ * Copyright: 2005-2006 Lars Ivar Igesund, Eric Anderton
+ */
 module ddl.ar.ArchiveLoader;
 
-private import ddl.DynamicLibrary;
-private import ddl.DynamicLibraryLoader;
-private import ddl.LoaderRegistry;
-private import ddl.FileBuffer;
-private import ddl.Utils;
-private import ddl.ar.ArchiveLibrary;
+import ddl.DynamicLibrary;
+import ddl.DynamicLibraryLoader;
+import ddl.LoaderRegistry;
+import ddl.FileBuffer;
+import ddl.Utils;
+import ddl.ar.ArchiveLibrary;
 
 /**
-    An implementation of the abstract class DynamicLibraryLoader for
-    use with archive files in the Ar format.
-    In general, archive files can hold all types of files, but for use
-    in DDL, only archives of ELF object files and COFF library files
-    are handled.
-*/
-class ArchiveLoader : DynamicLibraryLoader{
-
-    public char[] getLibraryType(){
+ * An implementation of the abstract class DynamicLibraryLoader for
+ * use with archive files in the Ar format.
+ * In general, archive files can hold all types of files, but for use
+ * in DDL, only archives of ELF object files and COFF library files
+ * are handled.
+ */
+class ArchiveLoader : DynamicLibraryLoader
+{
+    public override char[] getLibraryType()
+    {
         return "AR";
     }
 
     /**
-        Returns: true if the file can be loaded by this loader, 
-        false if it cannot.
-    */
-    public bool canLoadLibrary(FileBuffer file){
+     * Returns: true if the file can be loaded by this loader,
+     * false if it cannot.
+     */
+    public override bool canLoadLibrary( FileBuffer file)
+    {
         return file.data[0..8] == cast(ubyte[])"!<arch>\n"c;
     }
 
     /**
-        Loads a binary file.
-
-        Returns: the library stored in the provided file.
-        Params:
-            file = the file that contains the binary library data.
-    */
-    public DynamicLibrary load(LoaderRegistry registry, FileBuffer file) {
-         debug debugLog("* Loading the lib");   
-         return new ArchiveLibrary(registry, file);
+     * Loads a binary file.
+     *
+     * Returns: the library stored in the provided file.
+     * Params:
+     *  file = the file that contains the binary library data.
+     */
+    public override DynamicLibrary load( LoaderRegistry registry, FileBuffer file )
+    {
+         debug debugLog( "* Loading the lib" );
+         return new ArchiveLibrary( registry, file );
     }
 }

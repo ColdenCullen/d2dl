@@ -40,29 +40,29 @@ private import tango.text.convert.Integer;
 private import Text = tango.text.Util;
 
 class ArchiveLibrary : DynamicLibrary{
-	const char[] ARCHID = "!<arch>\n";
-	
-	private ArchiveReader reader;
-	private char[] stringtable;
-	private uint [char[]] symbolOffsets;
-	
-	private LoaderRegistry registry = null;	
-	private DynamicModule[] modules;
-	private DynamicModule[char[]] crossReference; // modules by symbol name
-	private ExportSymbolPtr[char[]] dictionary; // symbols by symbol name
-	private Attributes attributes;
+    enum ARCHID = "!<arch>\n";
+
+    private ArchiveReader reader;
+    private char[] stringtable;
+    private uint [char[]] symbolOffsets;
+
+    private LoaderRegistry registry = null;
+    private DynamicModule[] modules;
+    private DynamicModule[char[]] crossReference; // modules by symbol name
+    private ExportSymbolPtr[char[]] dictionary; // symbols by symbol name
+    private Attributes attributes;
 
 
-	public this(LoaderRegistry registry, FileBuffer file, bool loadall = true){
-		this.registry = registry;
-		attributes["archive.filename"] = file.getPath.toString();
-		debug debugLog("* Loading the archive");
-		load(file, loadall);
-	}
-	
-	public this(FileBuffer file, bool loadall = true){
-		this(new DefaultRegistry, file, loadall);
-	}
+    public this(LoaderRegistry registry, FileBuffer file, bool loadall = true){
+        this.registry = registry;
+        attributes["archive.filename"] = file.getPath.toString();
+        debug debugLog("* Loading the archive");
+        load(file, loadall);
+    }
+
+    public this(FileBuffer file, bool loadall = true){
+        this(new DefaultRegistry, file, loadall);
+    }
 
     protected void loadSymbolTable(char [] symtable)
     in {
@@ -80,7 +80,7 @@ class ArchiveLibrary : DynamicLibrary{
             offset += 4;
         }
         debug debugLog("* Found {0} symbol offsets in symbol table,latest offset was {1} ", offsets.length, offset);
-        
+
         uint offsetIdx = 0;
         uint symstart = offset;
         foreach (idx, c; symtable[offset..$]) {
@@ -94,175 +94,183 @@ class ArchiveLibrary : DynamicLibrary{
             }
         }
     }
-	// returns the name of a module - for reporting/debugging purposes
-	protected char[] getModuleName(char[] filename){
-		if(filename[0] == '/'){
-		    uint offset = Integer.parse(Text.trim(filename[1..$])); 
-		    debug debugLog("* Finding filename in stringtable, length {0}, starting at offset {1}", stringtable.length, offset);
-		    auto name = stringtable[offset..$];
-		    return stringtable[offset..indexOf(name,'/')+offset];
-		}
-		else{
-		    return filename[0..indexOf(filename, '/')];
-		}
-	}
-	
-	private void load(FileBuffer data, bool loadall) {		
-		//int nAddress;
-		char[] signature;
-		signature.length = ARCHID.length;
-		
-		reader = new ArchiveReader(data);
-		debug debugLog("* Created an archive reader instance");
-		
-		// read the library signature
-		reader.get(signature);
-		debug debugLog("* Read archive signature {0}", signature);
-		
-		if(signature != ARCHID){
-			throw new DDLException("Archive " ~ attributes["archive.filename"] ~ " has invalid library signature.");
-		}
-		
-		ArchiveHeader hdr;
-		char[] memberData;
-		char[] fName;
-		
-		while(reader.hasMore())
-		{
-		    if (reader.getFile(hdr, memberData, fName) is null) {
-			debug debugLog("* ArchiveReader.getFile() returned null");
-			break;
-		    }
-		
-		    debug debugLog("* Iterating over files, current is {0}", fName); 
-		    switch(fName){
-		    case "/":
-			// Need to check the next header
-			// If it has the same name, it is a
-			// PECOFF lib, otherwise it's an Ar-lib
-			ArchiveHeader tmphdr;
-			ubyte[] tmphdrarr;
-			reader.peek(tmphdrarr, ArchiveHeader.sizeof);
-			if (Text.trim(tmphdr.ar_name) == "/") {
-			    // PECOFF archive
-			    debug debugLog("* Found PECOFF archive");
-			    reader.getFile(hdr, memberData, fName);
-			    loadSymbolTable(memberData.dup);
-			}
-			else {  // Ar
-			    loadSymbolTable(memberData.dup);
-			}
-			break;
-		    case "//":
-			debug debugLog("* Extracting stringtable");
-			stringtable = memberData.dup;
-			break;
-		    default: 
-			if (loadall) 
-			    loadModule(fName, memberData);
-			else return;
-		    }
-		}
-	}
-	
-	private void loadModule(char[] fName, char[] memberData, uint idx = -1) {	
-		if (idx > 0) {
-			//TODO: allow for dynamic positioning into the input stream for lazy loading		    
-			//reader.setPosition(idx);
-		}
-		
-		debug debugLog("* Loading module {0} from archive", getModuleName(fName));
-		debug debugLog("* file starts with: ", memberData[0..4]);
-		FileBuffer embeddedFile = FileBuffer(getModuleName(fName),cast(ubyte[])memberData);
-		DynamicLibrary dl = this.registry.load(embeddedFile);
-		
-		foreach(mod; dl.getModules()){
-			addModule(mod);
-		}
-	}
-	
-	public DynamicModule[] getModules(){
-		return this.modules;
-	}
-	        
-	public ExportSymbolPtr getSymbol(char[] name){
-		ExportSymbolPtr* sym = name in dictionary;
-		if(sym) return *sym;
-		else return &ExportSymbol.NONE;
-	}
-        
-	public char[] getType(){
-		return "Archive";
-	}
+    // returns the name of a module - for reporting/debugging purposes
+    protected char[] getModuleName(char[] filename){
+        if(filename[0] == '/'){
+            uint offset = Integer.parse(Text.trim(filename[1..$]));
+            debug debugLog("* Finding filename in stringtable, length {0}, starting at offset {1}", stringtable.length, offset);
+            auto name = stringtable[offset..$];
+            return stringtable[offset..indexOf(name,'/')+offset];
+        }
+        else{
+            return filename[0..indexOf(filename, '/')];
+        }
+    }
 
-	public Attributes getAttributes(){
-		if(this.attributes != Attributes.init){
-		return this.attributes;
-		}
-	}
+    private void load(FileBuffer data, bool loadall) {
+        //int nAddress;
+        char[] signature;
+        signature.length = ARCHID.length;
 
-    
-	//TODO: implement lazy loading of modules via the symbolOffsets table
-	public DynamicModule getModuleForSymbol(char[] name){
-		debug debugLog("[AR] looking for " ~ name);
-		DynamicModule* mod = name in crossReference;
-		debug debugLog("[AR] Result: {0:X8}",mod);
-		if(mod) return *mod;	
-	}
-	
-	// AR files have no resources
-	public ubyte[] getResource(char[] name){
-		return (ubyte[]).init;
-	}
+        reader = new ArchiveReader(data);
+        debug debugLog("* Created an archive reader instance");
 
-	protected void addModule(DynamicModule mod){
-		this.modules ~= mod;
-		auto symbols = mod.getSymbols();
-		for(uint i=0; i<symbols.length; i++){
-			ExportSymbolPtr exp = &(symbols[i]);
-			if(exp.name in crossReference){
-				switch(exp.type){
-				case SymbolType.Weak: // replace unresolved only
-					if(dictionary[exp.name].type == SymbolType.Unresolved){
-						crossReference[exp.name] = mod;
-						dictionary[exp.name] = exp;
-					}
-					break;
-				case SymbolType.Strong: // always overwrite
-					crossReference[exp.name] = mod;
-					dictionary[exp.name] = exp;
-					break;
-				default:
-					// do nothing
-				}
-			}
-			else{
-				crossReference[exp.name] = mod;
-				dictionary[exp.name] = exp;
-			}
-		}
-	}
-		
-	public char[] toString(){
-		char[] result;
-		
-		foreach(mod; modules){
-			result ~= mod.toString();
-		}
-		return result;
-	}
-	
-	/**
-	    Helper function shift around the values present in the symbol table.
-	    Will be used when the loadSymbolTable member is implemented.
-	*/
-	private uint sgetl(ubyte[] val)
-	in {
-	    assert(val.length == 4); 
-	}
-	body{
-	    return (val[0] << 24) | (val[1] << 16) | (val[2] << 8) | val[3];
-	} 
+        // read the library signature
+        reader.get(signature);
+        debug debugLog("* Read archive signature {0}", signature);
+
+        if(signature != ARCHID){
+            throw new DDLException("Archive " ~ attributes["archive.filename"] ~ " has invalid library signature.");
+        }
+
+        ArchiveHeader hdr;
+        char[] memberData;
+        char[] fName;
+
+        while(reader.hasMore())
+        {
+            if (reader.getFile(hdr, memberData, fName) is null) {
+            debug debugLog("* ArchiveReader.getFile() returned null");
+            break;
+            }
+
+            debug debugLog("* Iterating over files, current is {0}", fName);
+            switch(fName){
+            case "/":
+            // Need to check the next header
+            // If it has the same name, it is a
+            // PECOFF lib, otherwise it's an Ar-lib
+            ArchiveHeader tmphdr;
+            ubyte[] tmphdrarr;
+            reader.peek(tmphdrarr, ArchiveHeader.sizeof);
+            if (Text.trim(tmphdr.ar_name) == "/") {
+                // PECOFF archive
+                debug debugLog("* Found PECOFF archive");
+                reader.getFile(hdr, memberData, fName);
+                loadSymbolTable(memberData.dup);
+            }
+            else {  // Ar
+                loadSymbolTable(memberData.dup);
+            }
+            break;
+            case "//":
+            debug debugLog("* Extracting stringtable");
+            stringtable = memberData.dup;
+            break;
+            default:
+            if (loadall)
+                loadModule(fName, memberData);
+            else return;
+            }
+        }
+    }
+
+    private void loadModule(char[] fName, char[] memberData, uint idx = -1) {
+        if (idx > 0) {
+            //TODO: allow for dynamic positioning into the input stream for lazy loading
+            //reader.setPosition(idx);
+        }
+
+        debug debugLog("* Loading module {0} from archive", getModuleName(fName));
+        debug debugLog("* file starts with: ", memberData[0..4]);
+        FileBuffer embeddedFile = FileBuffer(getModuleName(fName),cast(ubyte[])memberData);
+        DynamicLibrary dl = this.registry.load(embeddedFile);
+
+        foreach(mod; dl.getModules()){
+            addModule(mod);
+        }
+    }
+
+    public override DynamicModule[] getModules()
+    {
+        return this.modules;
+    }
+
+    public override ExportSymbolPtr getSymbol(char[] name)
+    {
+        ExportSymbolPtr* sym = name in dictionary;
+        if(sym) return *sym;
+        else return &ExportSymbol.NONE;
+    }
+
+    public override char[] getType()
+    {
+        return "Archive";
+    }
+
+    public override Attributes getAttributes()
+    {
+        if(this.attributes != Attributes.init)
+        {
+        	return this.attributes;
+        }
+    }
+
+
+    //TODO: implement lazy loading of modules via the symbolOffsets table
+    public override DynamicModule getModuleForSymbol(char[] name)
+    {
+        debug debugLog("[AR] looking for " ~ name);
+        DynamicModule* mod = name in crossReference;
+        debug debugLog("[AR] Result: {0:X8}",mod);
+        if(mod) return *mod;
+    }
+
+    // AR files have no resources
+    public override ubyte[] getResource(char[] name)
+    {
+        return (ubyte[]).init;
+    }
+
+    protected void addModule(DynamicModule mod)
+    {
+        this.modules ~= mod;
+        auto symbols = mod.getSymbols();
+        for(uint i=0; i<symbols.length; i++){
+            ExportSymbolPtr exp = &(symbols[i]);
+            if(exp.name in crossReference){
+                switch(exp.type){
+                case SymbolType.Weak: // replace unresolved only
+                    if(dictionary[exp.name].type == SymbolType.Unresolved){
+                        crossReference[exp.name] = mod;
+                        dictionary[exp.name] = exp;
+                    }
+                    break;
+                case SymbolType.Strong: // always overwrite
+                    crossReference[exp.name] = mod;
+                    dictionary[exp.name] = exp;
+                    break;
+                default:
+                    // do nothing
+                }
+            }
+            else{
+                crossReference[exp.name] = mod;
+                dictionary[exp.name] = exp;
+            }
+        }
+    }
+
+    public char[] toString(){
+        char[] result;
+
+        foreach(mod; modules){
+            result ~= mod.toString();
+        }
+        return result;
+    }
+
+    /**
+        Helper function shift around the values present in the symbol table.
+        Will be used when the loadSymbolTable member is implemented.
+    */
+    private uint sgetl(ubyte[] val)
+    in {
+        assert(val.length == 4);
+    }
+    body{
+        return (val[0] << 24) | (val[1] << 16) | (val[2] << 8) | val[3];
+    }
 }
 
 /////////////////////////////////
@@ -272,7 +280,7 @@ debug (UNITTEST) {
 }
 
 unittest {
-    ArchiveLibrary archlib = new ArchiveLibrary(new DefaultRegistry, 
+    ArchiveLibrary archlib = new ArchiveLibrary(new DefaultRegistry,
                                          new FileBuffer("libunittest.a"), true);
     //assert (archlib.getModules().length == 8);
     Stdout.println("Correct number of files found");
