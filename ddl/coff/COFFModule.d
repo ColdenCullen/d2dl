@@ -40,8 +40,6 @@ private import ddl.Utils;
 private import ddl.coff.COFFObject;
 private import ddl.coff.COFFBinary;
 
-private import tango.io.model.IReader;
-
 // coff object class
 class COFFModule : DynamicModule
 {
@@ -89,7 +87,7 @@ class COFFModule : DynamicModule
         if(name in exports)	return exports[name];
         else return ExportSymbol.NONE;
     }
-    
+
     public bool isResolved(){
 //!		return binary.isResolved();
         return true;

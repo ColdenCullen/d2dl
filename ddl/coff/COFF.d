@@ -1,6 +1,6 @@
 /+
 	Copyright (c) 2005, 2006 J Duncan, Eric Anderton
-        
+
 	Permission is hereby granted, free of charge, to any person
 	obtaining a copy of this software and associated documentation
 	files (the "Software"), to deal in the Software without
@@ -35,17 +35,16 @@ module ddl.coff.COFF;
 private import std.string;
 private import std.stdio;
 private import std.stream;
-private import std.date;
 private import std.conv;
 private import std.c.time;
 private import std.c.string;
-// 
-// 
+//
+//
 // extern (C)
 // {
 // 	void * memcpy (void *dst, void *src, uint);
-// }    
-// 
+// }
+//
 
 // PE-COFF constants
 const int PECOFF_MAGIC_PE				= 0x10B;
@@ -600,7 +599,7 @@ alias _IMAGE_SECTION_HEADER* 	PIMAGE_SECTION_HEADER;
 
 
 
-struct IMAGE_DEBUG_DIRECTORY 
+struct IMAGE_DEBUG_DIRECTORY
 {
   	uint Characteristics;
   	uint TimeDateStamp;
@@ -626,7 +625,7 @@ enum : uint { IMAGE_DEBUG_TYPE_BORLAND = 9 }
 enum : uint { IMAGE_DEBUG_TYPE_RESERVED10 = 10 }
 enum : uint { IMAGE_DEBUG_TYPE_CLSID = 11 }
 
-struct _IMAGE_COFF_SYMBOLS_HEADER 
+struct _IMAGE_COFF_SYMBOLS_HEADER
 {
   uint NumberOfSymbols;
   uint LvaToFirstSymbol;
@@ -679,4 +678,3 @@ const uint IMAGE_REL_I386_SECREL	= 0x000b;	// The 32-bit offset of the target fr
 const uint IMAGE_REL_I386_REL32		= 0x0014;	// The 32-bit relative displacement to the target. This supports the x86 relative branch and call instructions.
 
 }
-

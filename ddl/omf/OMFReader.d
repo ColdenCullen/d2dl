@@ -27,11 +27,7 @@ module ddl.omf.OMFReader;
 private import ddl.DDLReader;
 private import ddl.Utils;
 
-private import tango.io.Buffer;
-
-private import tango.io.model.IBuffer;
 private import tango.io.model.IConduit;
-private import tango.io.protocol.model.IReader;
 
 alias OMFIndex = ushort;
 alias VWord = uint;

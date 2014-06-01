@@ -1,6 +1,6 @@
 /+
 	Copyright (c) 2005-2007 Eric Anderton
-        
+
 	Permission is hereby granted, free of charge, to any person
 	obtaining a copy of this software and associated documentation
 	files (the "Software"), to deal in the Software without
@@ -34,57 +34,56 @@ private import ddl.Utils;
 
 private import ddl.omf.OMFModule;
 
-private import tango.io.model.IBuffer;
 private import tango.io.model.IConduit;
 
 import tango.io.Stdout;
 
 class OMFLibrary : DynamicLibrary{
 	DynamicModule[] modules;
-	
+
 	struct SymInfo {
 		DynamicModule		mod;
 		ExportSymbolPtr	sym;
 	}
 	SymInfo[char[]] crossReference;
-	
+
 	Attributes attributes;
 
 	public this(){
 		attributes["omf.filename"] = "<unknown>";
 	}
-	
+
 	public this(FileBuffer file){
 		attributes["omf.filename"] = file.getPath.toString();
 		load(file);
 	}
-		
+
 	public char[] getType(){
 		return "OMF";
 	}
-	
+
 	public Attributes getAttributes(){
 		return attributes;
 	}
-	
+
 	package void setAttributes(Attributes other){
 		other.copyInto(this.attributes);
 	}
-	
+
 	package void setAttribute(char[] key,char[] value){
 		this.attributes[key] = value;
 	}
-	
+
 	public ExportSymbolPtr getSymbol(char[] name){
 		auto sym = name in crossReference;
 		if (sym) return sym.sym;
 		else return &ExportSymbol.NONE;
 	}
-	
+
 	public DynamicModule[] getModules(){
 		return this.modules;
 	}
-		
+
 	public DynamicModule getModuleForSymbol(char[] name){
 		debug debugLog("[OMF] looking for {0} in {1}",name,attributes["omf.filename"]);
 		auto mod = name in crossReference;
@@ -92,12 +91,12 @@ class OMFLibrary : DynamicLibrary{
 		if (mod) return mod.mod;
 		return null;
 	}
-	
+
 	public ubyte[] getResource(char[] name){
 		return (ubyte[]).init;
 	}
-	
-	
+
+
 	public override void makePrivate() {
 		foreach (mod; modules) {
 			mod.makePrivate();
@@ -105,7 +104,7 @@ class OMFLibrary : DynamicLibrary{
 		crossReference = crossReference.init;
 	}
 
-	
+
 	package void addModule(OMFModule mod){
 		this.modules ~= mod;
 		auto symbols = mod.getSymbols();
@@ -135,44 +134,44 @@ class OMFLibrary : DynamicLibrary{
 			}
 		}
 	}
-		
+
 	protected void load(FileBuffer data){
 		ubyte type;
 		ushort recordLength;
 		uint dictionaryOffset;
 		ushort dictionarySize; // size in 512 byte blocks
 		ubyte flags;
-				
+
 		DDLReader reader = new DDLReader(data);
-		
+
 		// read the header section (much of this is thrown out)
 		reader.get(type);
-				
+
 		assert(type == 0xF0);  // assert OMF library
-		
+
 		reader.get(recordLength);
 		reader.get(dictionaryOffset);
 		reader.get(dictionarySize);
 		reader.get(dictionarySize); //NOTE: this is delibarate
 		reader.get(flags);
-		
+
 		//debug debugLog("Dictionary: %0.8X\n",dictionaryOffset);
-		
+
 		uint pageSize = recordLength += 3; // adjusted for the first 3 bytes in the header
-		
+
 		//debug debugLog("recordLength: %d bytes",recordLength);
-				
+
 		// skip the padding and proceed to the first page boundary
 		reader.seek(pageSize);
-		
+
 		// read in object files, and add them to the modules listing
 		OMFModule mod;
 		while(reader.hasMore()){
 			//debug debugLog("offset: %0.8X\n",reader.getPosition);
-		
+
 			mod = new OMFModule(reader);
 			this.addModule(mod);
-				
+
 			// advance the remainder of a page
 			ulong position = reader.getPosition();
 			ulong delta = pageSize - (position % pageSize);
@@ -180,15 +179,15 @@ class OMFLibrary : DynamicLibrary{
 				reader.seek(position + delta);
 			}
 
-			// determine if we're at the end of the module list			
+			// determine if we're at the end of the module list
 			ubyte next;
 			reader.peek(next);
 			//debug debugLog("next: %0.2X\n",next);
-			if(next == 0xF1) break; 
+			if(next == 0xF1) break;
 		}
 		//skip the dictionary (redundant)
 	}
-	
+
 	public char[] toString(){
 		char[] result = "";
 		foreach(DynamicModule mod; modules){
@@ -197,4 +196,3 @@ class OMFLibrary : DynamicLibrary{
 		return result;
 	}
 }
-

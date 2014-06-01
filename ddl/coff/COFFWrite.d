@@ -1,6 +1,6 @@
 /+
 	Copyright (c) 2005-2007 J Duncan, Eric Anderton
-        
+
 	Permission is hereby granted, free of charge, to any person
 	obtaining a copy of this software and associated documentation
 	files (the "Software"), to deal in the Software without
@@ -42,7 +42,6 @@ private import ddl.coff.COFFImage;			// .dll & .exe
 private import std.string;
 private import std.stdio;
 private import std.stream;
-private import std.date;
 private import std.conv;
 private import std.c.time;
 
@@ -332,5 +331,3 @@ void writeCOFF( COFFSection sect, bool bRelocs=false, bool bLines=false )
 		}
 	}
 }
-
-

@@ -1,6 +1,6 @@
 /+
 	Copyright (c) 2005 Eric Anderton
-        
+
 	Permission is hereby granted, free of charge, to any person
 	obtaining a copy of this software and associated documentation
 	files (the "Software"), to deal in the Software without
@@ -24,49 +24,49 @@
 +/
 module ddl.FileBuffer;
 
-private import tango.io.File;
-private import tango.io.FileConduit;
+private import tango.io.FilePath;
 
-struct FileBuffer{
+struct FileBuffer
+{
 	FilePath path;
 	ubyte[] data;
-		
+
 	static FileBuffer opCall(char[] path){
 		FileBuffer _this;
-		_this.path = new FilePath(path);		
+		_this.path = new FilePath(path);
 		_this.data = cast(ubyte[])(new File(_this.path.toString)).read;
 		return _this;
 	}
-	
+
 	static FileBuffer opCall(FilePath path){
 		FileBuffer _this;
-		_this.path = new FilePath(path.toString);		
+		_this.path = new FilePath(path.toString);
 		_this.data = cast(ubyte[])(new File(_this.path.toString)).read;
 		return _this;
 	}
-	
+
 	static FileBuffer opCall(char[] path,ubyte[] data){
 		FileBuffer _this;
-		_this.path = new FilePath(path);		
-		_this.data = data;
-		return _this;
-	}	
-	
-	static FileBuffer opCall(FilePath path,ubyte[] data){
-		FileBuffer _this;
-		_this.path = new FilePath(path.toString);		
+		_this.path = new FilePath(path);
 		_this.data = data;
 		return _this;
 	}
-	
+
+	static FileBuffer opCall(FilePath path,ubyte[] data){
+		FileBuffer _this;
+		_this.path = new FilePath(path.toString);
+		_this.data = data;
+		return _this;
+	}
+
 	FilePath getPath(){
 		return path;
 	}
-	
+
 	void save(){
 		(new File(this.path.toString)).write(this.data);
 	}
-	
+
 	void deleteData() {
 		delete this.data;
 	}

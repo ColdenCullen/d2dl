@@ -40,106 +40,102 @@ private import ddl.elf.ELFHeaders;
 private import ddl.elf.ELFModule;
 private import ddl.elf.ELFPrinter;
 
-//private import tango.io.Exception;
-private import tango.io.model.IBuffer;
-private import tango.io.model.IConduit;
-
 /**
-    An implementation of the abstract class DynamicLibrary for use 
+    An implementation of the abstract class DynamicLibrary for use
     with libraries of ELF (Executable and Linkable Format) object
-    files. 
+    files.
 */
 class ELFLibrary : DynamicLibrary{
-	DynamicModule[] modules;
-	DynamicModule[char[]] crossReference; // modules by symbol name
-	ExportSymbolPtr[char[]] dictionary; // symbols by symbol name
-	Attributes attributes;
+    DynamicModule[] modules;
+    DynamicModule[char[]] crossReference; // modules by symbol name
+    ExportSymbolPtr[char[]] dictionary; // symbols by symbol name
+    Attributes attributes;
 
-	public this(){
-		attributes["elf.filename"] = "<unknown>";
-	}
-	
-	public this(FileBuffer file){
-		attributes["elf.filename"] = file.getPath.toString();
-		load(file);
-	}
-		
-	public char[] getType(){
-		return "ELFLIB";
-	}
-	
-	public Attributes getAttributes(){
-		return attributes;
-	}
-	
-	package void setAttributes(Attributes other){
-		other.copyInto(this.attributes);
-	}
-	
-	package void setAttribute(char[] key,char[] value){
-		this.attributes[key] = value;
-	}
-	
-	public ExportSymbolPtr getSymbol(char[] name){
-		ExportSymbolPtr* sym = name in dictionary;
-		if(sym) return *sym;
-		else return &ExportSymbol.NONE;
-	}
-	
-	public DynamicModule[] getModules(){
-		return this.modules;
-	}
-		
-	public DynamicModule getModuleForSymbol(char[] name){
-		debug debugLog("[ELFLIB] looking for " ~ name);
-		DynamicModule* mod = name in crossReference;
-		debug debugLog("[ELFLIB] Result: %0.8X",mod);
-		if(mod) return *mod;
-		return null;
-	}
-	
-	public ubyte[] getResource(char[] name){
-		return (ubyte[]).init;
-	}
-	
-	package void addModule(ELFModule mod){
-		this.modules ~= mod;
-		auto symbols = mod.getSymbols();
-		for(uint i=0; i<symbols.length; i++){
-			ExportSymbolPtr exp = &(symbols[i]);
-			if(exp.name in crossReference){
-				switch(exp.type){
-				case SymbolType.Weak: // replace extern only
-					if(dictionary[exp.name].type == SymbolType.Unresolved){
-						crossReference[exp.name] = mod;
-						dictionary[exp.name] = exp;
-					}
-					break;
-				case SymbolType.Strong: // always overwrite
-					crossReference[exp.name] = mod;
-					dictionary[exp.name] = exp;
-					break;
-				default:
-					// do nothing
-				}
-			}
-			else{
-				crossReference[exp.name] = mod;
-				dictionary[exp.name] = exp;
-			}
-		}
-	}
-		
-	protected void load(FileBuffer data){
-		//TODO
-	}
-	
-	public char[] toString(){
-		char[] result;
-		
-		foreach(mod; modules){
-			result ~= mod.toString();
-		}
-		return result;
-	}
+    public this(){
+        attributes["elf.filename"] = "<unknown>";
+    }
+
+    public this(FileBuffer file){
+        attributes["elf.filename"] = file.getPath.toString();
+        load(file);
+    }
+
+    public char[] getType(){
+        return "ELFLIB";
+    }
+
+    public Attributes getAttributes(){
+        return attributes;
+    }
+
+    package void setAttributes(Attributes other){
+        other.copyInto(this.attributes);
+    }
+
+    package void setAttribute(char[] key,char[] value){
+        this.attributes[key] = value;
+    }
+
+    public ExportSymbolPtr getSymbol(char[] name){
+        ExportSymbolPtr* sym = name in dictionary;
+        if(sym) return *sym;
+        else return &ExportSymbol.NONE;
+    }
+
+    public DynamicModule[] getModules(){
+        return this.modules;
+    }
+
+    public DynamicModule getModuleForSymbol(char[] name){
+        debug debugLog("[ELFLIB] looking for " ~ name);
+        DynamicModule* mod = name in crossReference;
+        debug debugLog("[ELFLIB] Result: %0.8X",mod);
+        if(mod) return *mod;
+        return null;
+    }
+
+    public ubyte[] getResource(char[] name){
+        return (ubyte[]).init;
+    }
+
+    package void addModule(ELFModule mod){
+        this.modules ~= mod;
+        auto symbols = mod.getSymbols();
+        for(uint i=0; i<symbols.length; i++){
+            ExportSymbolPtr exp = &(symbols[i]);
+            if(exp.name in crossReference){
+                switch(exp.type){
+                case SymbolType.Weak: // replace extern only
+                    if(dictionary[exp.name].type == SymbolType.Unresolved){
+                        crossReference[exp.name] = mod;
+                        dictionary[exp.name] = exp;
+                    }
+                    break;
+                case SymbolType.Strong: // always overwrite
+                    crossReference[exp.name] = mod;
+                    dictionary[exp.name] = exp;
+                    break;
+                default:
+                    // do nothing
+                }
+            }
+            else{
+                crossReference[exp.name] = mod;
+                dictionary[exp.name] = exp;
+            }
+        }
+    }
+
+    protected void load(FileBuffer data){
+        //TODO
+    }
+
+    public char[] toString(){
+        char[] result;
+
+        foreach(mod; modules){
+            result ~= mod.toString();
+        }
+        return result;
+    }
 }

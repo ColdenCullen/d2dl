@@ -47,12 +47,8 @@ import ddl.Utils;
 private import std.string;
 private import std.stdio;
 private import std.stream;
-private import std.date;
 private import std.conv;
 private import std.c.time;
-
-private import tango.io.model.IBuffer;
-private import tango.io.model.IConduit;
 
 // coff binary type
 enum COFF_TYPE : byte
