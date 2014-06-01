@@ -1,0 +1,67 @@
+/*
+	Lexer for Python
+	
+	http://docs.python.org/ref/lexical.html
+*/
+
+Tokens
+	::= (Comment | LogicalLine)*;
+	
+LogicalLine
+	= void addLine(String indent,Token[] tokens)
+	::= Indent:indent (LinePart:~tokens)* Newline;
+		
+LinePart
+	= Token[] tokens
+	::= Whitespace | CurlyScope | BracketScope | ParenScope | String | Identifier | Literal;
+	
+CurlyScope
+	= Token[] tokens
+	::= "{" @CreateLiteral!("{"):~tokens 
+		(LinePart:~tokens)* 
+		"}" @CreateLiteral!("}"):~tokens;
+
+BracketScope
+	= Token[] tokens
+	::= "[" @CreateLiteral!("["):~tokens 
+		(LinePart:~tokens)* 
+		"]" @CreateLiteral!("]"):~tokens;
+	
+ParenScope
+	= Token[] tokens
+	::= "(" @CreateLiteral!("("):~tokens 
+		(LinePart:~tokens)* 
+		")" @CreateLiteral!(")"):~tokens;
+	
+String
+	$String err0="Expected closing '''"
+	$String err1="Expected closing \"\"\""
+	$String err2="Expected closing \""
+	$String err3="Expected closing \'"
+	::= ("'''" ?!(err0) (any:~text)* "'''") | 
+		("\"\"\"" ?!(err1) (any:~text)* "\"\"\"") | 
+		("\"" ?!(err2) (StringChar:~text)* "\"") | 
+		("\'" ?!(err2) (StringChar:~text)* "\'");
+    
+StringChar
+	= String ch
+	$String err1="Unknown escape sequence"
+	::= "\\" (Newline | "n" @NEWLINE:ch | "r" @CARRAIGE_RETURN:ch | "t" @TAB:ch | "\"" @DOUBLE_QUOTE:ch | "\'" @SINGLE_QUOTE:ch | "\\" @SLASH:ch | @err!(err1)) | any:ch;
+
+Indent
+	::= (" " | "\t" )*;
+		
+Whitespace
+	::= (" " | "\t" | "\\" Newline | "#" any* /Newline)*;
+		
+Newline
+	::= "\n" | "\r\n" | "\r";
+
+Identifier
+	= Token createIdentifier(value)
+	::= ((#41-#5A | #61-#7A | "_") (#30-#39 | #41-#5A | #61-#7A | "_")*):value;
+	
+Literal
+	= Token createLiteral(value)
+	::= #21-#2F | #3A-#40 | #5B-#60 | #7B-#7E;
+ 

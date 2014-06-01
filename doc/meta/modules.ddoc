@@ -1,0 +1,12 @@
+MODULES = 
+    $(MODULE meta.all)
+    $(MODULE meta.conv)
+    $(MODULE meta.ctype)
+    $(MODULE meta.demangle)
+    $(MODULE meta.generatetable)
+    $(MODULE meta.math)
+    $(MODULE meta.nameof)
+    $(MODULE meta.regexp2)
+    $(MODULE meta.string)
+    $(MODULE meta.unittests)
+    $(MODULE meta.hack.hackgenerate)

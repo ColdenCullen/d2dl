@@ -1,0 +1,53 @@
+/*
+	Simple calculator example
+*/
+.d-filename="example/calc/CalcValidate.d";
+.d-classname="CalcValidate";
+.d-baseclass="CalcParserBase";
+.d-whitespace="cull";
+.d-header="""module example.calc.CalcParser;
+import example.calc.CalcParserBase;
+""";
+
+.all-help = """Simple calculator example #1
+	
+This example is a validator for the calculator grammar.
+
+When developing an Enki grammar, it is recommended to start
+with a bare-bones grammar without any annotations or productions
+to get a good grasp of the overall language.
+
+The only part of this grammar not represented in EBNF is the
+production for 'Number', which is handled by Tango's Float.parse().  
+Sometimes it is best to stick with a hand-coded parser when 
+handling discrete grammars like that for floating point numbers.  
+As a bonus, the production also converts the number back to a 
+double, which can be used in an annotated grammar.
+
+Also note that while this grammar could be represented recursively,
+iterators have been used for efficiency.
+""";
+            
+Syntax ::= Expression (eoi | Error);
+
+Expression ::= Addition ["!"];
+
+Addition ::= Multipulcation ("+" Multipulcation | "-" Multipulcation)*;
+
+Multipulcation ::= Exponent ("*" Exponent | "/" Exponent | "%" Exponent)*;
+    	
+Exponent ::= Unary ("^"  Unary | "**" Unary)*;
+    	
+Unary ::= "+" Parenthetical | "-" Parenthetical | Parenthetical;
+		
+Parenthetical ::= "(" Expression ")" | Absolute;
+	
+Absolute ::= "|" Expression "|" | Function | Number | Error;
+	
+Function ::= "sin" "(" Expression ")" | "cos" "(" Expression ")" | 
+	"tan" "(" Expression ")" | "pi2" | "pi";
+
+Number = double; //NOTE: This is defined in the base parser class
+	
+Error ::= @err!("Expected Mathematical Expression");
+		

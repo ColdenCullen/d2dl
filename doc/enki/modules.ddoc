@@ -1,0 +1,12 @@
+MODULES = 
+    $(MODULE enki.BaseParser)
+    $(MODULE enki.bootstrap)
+    $(MODULE enki.CodeGenerator)
+    $(MODULE enki.Directive)
+    $(MODULE enki.enki)
+    $(MODULE enki.EnkiBackend)
+    $(MODULE enki.EnkiParser)
+    $(MODULE enki.Expression)
+    $(MODULE enki.IParser)
+    $(MODULE enki.Rule)
+    $(MODULE enki.types)

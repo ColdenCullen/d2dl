@@ -1,0 +1,293 @@
+.boilerplate{{{/+
+    Copyright (c) 2006 Eric Anderton
+
+    Permission is hereby granted, free of charge, to any person
+    obtaining a copy of this software and associated documentation
+    files (the "Software"), to deal in the Software without
+    restriction, including without limitation the rights to use,
+    copy, modify, merge, publish, distribute, sublicense, and/or
+    sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following
+    conditions:
+
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+    OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+    HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+    OTHER DEALINGS IN THE SOFTWARE.
++/}}}
+
+#  Enki Grammar Definition (self-hosting frontend)
+.module("enki.EnkiParser");
+
+.import("enki.EnkiBackend");
+.import("enki.Rule");
+.import("enki.Expression");
+.import("enki.Directive");
+
+.define("bool","eoi","true","End of Input");
+.define("bool","eol","true","End of Line");
+.define("bool","err","true","Error");
+.define("String","letter","true","Letter");
+.define("String","digit","true","Digit");
+.define("String","hexdigit","true","Hexdigit");
+.define("String","any","true","any");
+.define("String","newline","true","Newline");
+.define("String","sp","true","Space(s)");
+.define("String","ws","false","Whitespace");
+
+.parsetype("String");
+.utf("8");
+
+.baseclass("BaseEnkiParser");
+.classname("EnkiParser");
+
+
+WS
+	::=  ws [ (  SlashSlashComment |  SlashStarComment)  WS];
+
+
+Syntax
+	= void createSyntax(SyntaxLine[] lines)
+	::=  WS { (  Rule:~lines |  Comment:~lines |  Directive:~lines)  WS} eoi;
+
+# 
+#  Rule and Predicate
+# 
+
+Rule
+	= new Rule(String name,RulePredicate pred,Expression expr,RuleDecl decl)
+	::=  Identifier:name  WS [  RuleDecl:decl  WS] [  RulePredicate:pred]  WS  "::="  WS  Expression:expr  WS  ";";
+
+RuleDecl
+	= new RuleDecl(Param[] params)
+	::=  ParamsExpr:params;
+
+RulePredicate
+	= RulePredicate pred
+	::=  "="  WS (  ClassPredicate:pred |  FunctionPredicate:pred |  BindingPredicate:pred);
+
+ClassPredicate
+	= new ClassPredicate(String name,Param[] params)
+	::=  "new"  WS  Identifier:name  WS  ParamsExpr:params;
+
+FunctionPredicate
+	= new FunctionPredicate(Param decl,Param[] params)
+	::=  ExplicitParam:decl  WS  ParamsExpr:params;
+
+BindingPredicate
+	= new BindingPredicate(Param param)
+	::=  Param:param;
+
+ParamsExpr
+	= Param[] params
+	::=  "("  WS [  Param:~params  WS {  ","  WS  Param:~params  WS}]  ")";
+
+Param
+	= Param param
+	::=  ExplicitParam:param |  WeakParam:param;
+
+WeakParam
+	= new Param(String name)
+	::=  Identifier:name;
+
+ExplicitParam
+	= new Param(bool isArray,String type,String name)
+	::=  Identifier:type  WS [  "[]":isArray  Brackets  WS]  Identifier:name;
+
+Brackets
+	::= [  "[]"  Brackets];
+# 
+#  Expressions
+# 
+
+Expression
+	= new Expression(Term[] terms)
+	::=  Term:~terms  WS {  "|"  WS  Term:~terms  WS};
+
+Term
+	= SubExpression[] factors
+	::=  SubExpression:~factors  WS {  SubExpression:~factors  WS};
+
+SubExpression
+	= SubExpression expr
+	::=  Production:expr |  Substitution:expr |  Terminal:expr |  Range:expr |  Regexp:expr |  GroupExpr:expr |  OptionalExpr:expr |  ZeroOrMoreExpr:expr |  NegateExpr:expr |  TestExpr:expr |  LiteralExpr:expr |  CustomTerminal:expr;
+
+Production
+	= new Production(String name,Binding binding,ProductionArg[] args)
+	::=  Identifier:name  WS [  "!("  WS  ProductionArg:~args {  WS  ","  WS  ProductionArg:~args} ")"] [  Binding:binding];
+
+ProductionArg
+	= ProductionArg arg
+	::=  StringProductionArg:arg |  BindingProductionArg:arg;
+
+StringProductionArg
+	= new StringProductionArg(String value)
+	::=  String:value;
+
+BindingProductionArg
+	= new BindingProductionArg(String value)
+	::=  Identifier:value;
+
+Substitution
+	= new Substitution(String name,Binding binding)
+	::=  "."  Identifier:name  WS [  Binding:binding];
+
+GroupExpr
+	= new GroupExpr(Expression expr,Binding binding)
+	::=  "("  WS  Expression:expr  WS  ")"  WS [  Binding:binding];
+
+OptionalExpr
+	= new OptionalExpr(Expression expr,Binding binding)
+	::=  "["  WS  Expression:expr  WS  "]"  WS [  Binding:binding];
+
+ZeroOrMoreExpr
+	= new ZeroOrMoreExpr(Expression expr,Binding binding,SubExpression term)
+	::=  "{"  WS  Expression:expr  WS  "}"  WS [  Binding:binding  WS] [  SubExpression:term];
+
+Terminal
+	= new Terminal(String text,Binding binding)
+	::=  String:text  WS [  Binding:binding];
+
+Range
+	= new Range(String start,String end,Binding binding)
+	::=  HexExpr:start  WS [  "-"  WS  HexExpr:end  WS] [  Binding:binding];
+
+Regexp
+	= new Regexp(String text,Binding binding)
+	::= (  "r"  String:text |  "`" {  any}:text "`")  WS [  Binding:binding];
+
+NegateExpr
+	= new Negate(SubExpression expr)
+	::=  "!"  WS  SubExpression:expr;
+
+TestExpr
+	= new Test(SubExpression expr)
+	::=  "/"  WS  SubExpression:expr;
+
+LiteralExpr
+	= new LiteralExpr(String name,Binding binding,ProductionArg[] args)
+	::=  "@"  Identifier:name  WS [  "!("  WS  ProductionArg:~args {  WS  ","  WS  ProductionArg:~args} ")"] [  Binding:binding];
+
+CustomTerminal
+	= new CustomTerminal(String name,Binding binding)
+	::=  "&"  Identifier:name  WS [  Binding:binding];
+
+Binding
+	= new Binding(bool isConcat,String name)
+	::=  ":"  WS [  "~"]:isConcat   WS  Identifier:name;
+
+Identifier
+	= String value
+	::= (  IdentifierStartChar {  IdentifierChar}):value ;
+
+IdentifierStartChar
+	= String text
+	::= (  letter |  "_"):text ;
+
+IdentifierChar
+	= String text
+	::= (  letter |  digit |  "_" |  "."):text ;
+
+String
+	= String text
+	::= (  "\"" |  "\'"):~delim  {  AnyChar}:text.delim;
+
+HexExpr
+	= String text
+	::=  "#" (  hexdigit  hexdigit [  hexdigit  hexdigit [  hexdigit  hexdigit  hexdigit  hexdigit [  hexdigit  hexdigit  hexdigit  hexdigit  hexdigit  hexdigit  hexdigit  hexdigit]]]):text ;
+
+AnyChar
+	= String value
+	::= [  "\\":~value]  any:~value;
+
+# 
+#  Comments
+# 
+
+
+Comment
+	= new Comment(String text)
+	::=  PoundComment:text |  SlashSlashComment:text |  SlashStarComment:text;
+
+PoundComment
+	= String text
+	::=  "#" {  any}:text eol;
+
+SlashSlashComment
+	= String text
+	::=  "\x2F\x2F" {  any}:text eol;
+
+SlashStarComment
+	= String text
+	::=  "\x2F\x2A" {  any}:text "\x2A\x2F";
+
+# 
+#  Directives
+# 
+
+Directive
+	= Directive dir
+	::=  "." (  ImportDirective:~dir |  BaseClassDirective:~dir |  ClassnameDirective:~dir |  DefineDirective:~dir |  IncludeDirective:~dir |  AliasDirective:~dir |  ModuleDirective:~dir |  CodeDirective:~dir |  TypelibDirective:~dir |  ParseTypeDirective:~dir |  BoilerplateDirective:~dir |  HeaderDirective:~dir |  UTFDirective:~dir);
+
+ImportDirective
+	= new ImportDirective(String imp)
+	::=  "import"  WS  "("  WS  DirectiveArg:imp  WS  ")"  WS  ";";
+
+BaseClassDirective
+	= new BaseClassDirective(String name)
+	::=  "baseclass"  WS  "("  WS  DirectiveArg:name  WS  ")"  WS  ";";
+
+ClassnameDirective
+	= new ClassnameDirective(String name)
+	::=  "classname"  WS  "("  WS  DirectiveArg:name  WS  ")"  WS  ";";
+
+DefineDirective
+	= new DefineDirective(String returnType,String name,bool isTerminal,String description)
+	::=  "define"  WS  "("  WS  DirectiveArg:returnType  WS  ","  WS  DirectiveArg:name  WS  ","  WS  DirectiveArg:isTerminal  WS [  ","  WS  DirectiveArg:description  WS]  ")"  WS  ";";
+
+IncludeDirective
+	= new IncludeDirective(String filename)
+	::=  "include"  WS  "("  WS  String:filename  WS  ")"  WS  ";";
+
+AliasDirective
+	= new AliasDirective(String rule,String ruleAlias)
+	::=  "alias"  WS  "("  WS  DirectiveArg:rule  WS  ","  WS  DirectiveArg:ruleAlias  WS  ")"  WS  ";";
+
+ModuleDirective
+	= new ModuleDirective(String moduleName)
+	::=  "module"  WS  "("  WS  DirectiveArg:moduleName  WS  ")"  WS  ";";
+
+CodeDirective
+	= new CodeDirective(String code)
+	::=  "code"  WS  "{{{" {  any}:code "}}}";
+
+TypelibDirective
+	= new TypelibDirective(String importName)
+	::=  "typelib"  WS  "("  WS  DirectiveArg:importName  WS  ")"  WS  ";";
+
+ParseTypeDirective
+	= new ParseTypeDirective(String typeName)
+	::=  "parsetype"  WS  "("  WS  DirectiveArg:typeName  WS  ")"  WS  ";";
+
+BoilerplateDirective
+	= new BoilerplateDirective(String code)
+	::=  "boilerplate"  WS  "{{{" {  any}:code "}}}";
+
+HeaderDirective
+	= new HeaderDirective(String code)
+	::=  "header"  WS  "{{{" {  any}:code "}}}";
+
+UTFDirective
+	= new UTFDirective(String value)
+	::=  "utf"  WS  "("  WS  DirectiveArg:value  WS  ")"  WS  ";";
+
+DirectiveArg
+	= String arg
+	::=  Identifier:arg |  String:arg;

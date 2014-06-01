@@ -1,0 +1,123 @@
+.boilerplate{{{/+
+    Copyright (c) 2006 Eric Anderton
+
+    Permission is hereby granted, free of charge, to any person
+    obtaining a copy of this software and associated documentation
+    files (the "Software"), to deal in the Software without
+    restriction, including without limitation the rights to use,
+    copy, modify, merge, publish, distribute, sublicense, and/or
+    sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following
+    conditions:
+
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+    OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+    HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+    OTHER DEALINGS IN THE SOFTWARE.
++/}}}
+
+.import(enki.library.d.Template);
+
+TemplateDeclaration
+	= new TemplateDeclaration(String name,TemplateParameter[] params,Declaration[] decls)
+	::= &Tok.Template TemplateIdentifier:name
+		&Tok.OpenParen TemplateParameterList:params &Tok.CloseParen
+		&Tok.OpenCurly DeclDefs:decls &Tok.CloseCurly;
+
+TemplateIdentifier
+	= String name
+	::= Identifier:name;
+
+TemplateParameterList
+	= TemplateParameter[] params
+	::= TemplateParameter:~params { &Tok.Comma TemplateParameter:~params };
+
+TemplateParameter
+	= TemplateParameter param
+	::= TemplateTypeParameter:param |
+		TemplateValueParameter:param |
+		TemplateAliasParameter:param;
+
+TemplateTypeParameter
+	= new TemplateAliasParameter(String name,Type specialization,Type paramDefault)
+	::= Identifier:name [TemplateTypeParameterSpecialization:specialization] [ TemplateTypeParameterDefault:paramDefault];
+
+TemplateTypeParameterSpecialization
+	= Type type
+	::= &Tok.Colon Type:type;
+
+TemplateTypeParameterDefault
+	= Type type
+	::= &Tok.Equals Type:type;
+
+TemplateValueParameter
+	= new TemplateValueParameter(Declaration decl,Expression specialization,Expression paramDefault)
+	::= Declaration:decl [TemplateValueParameterSpecialization:specialization] [TemplateValueParameterDefault:paramDefault];
+
+TemplateValueParameterSpecialization
+	= Expression expr
+	::= ConditionalExpression:expr;
+
+TemplateValueParameterDefault
+	= Expression expr
+	::= ConditionalExpression:expr;
+
+TemplateAliasParameter
+	= new TemplateAliasParameter(String name,Type specialization,Type paramDefault)
+	::= &Tok.Alias Identifier:name [TemplateAliasParameterSpecialization:specialization] [TemplateAliasParameterDefault:paramDefault];
+
+TemplateAliasParameterSpecialization
+	= Type type
+	::= &Tok.Colon Type:type;
+
+TemplateAliasParameterDefault
+	= Type type
+	::= &Tok.Equals Type:type;
+
+TemplateInstance
+	= new TemplateInstance(String name,TemplateArgument[] args)
+	::= TemplateIdentifier &Tok.Not &Tok.OpenParen TemplateArgumentList &Tok.CloseParen;
+
+TemplateArgumentList
+	= TemplateArgument[] args
+	::= TemplateArgument:~args { &Tok.Comma TemplateArgument:~args };
+
+TemplateArgument
+	= TemplateArgument arg
+	::= TypeTemplateArgument:arg |
+		AssignExpressionTemplateArgument:arg |
+		SymbolTemplateArgument:arg;
+
+TypeTemplateArgument
+	= new TypeTemplateArgument(Type type)
+	::= Type:type;
+	
+AssignExpressionTemplateArgument 
+	= new AssignExpressionTemplateArgument(AssignExpression expr)
+	::= AssignExpression:expr;
+	
+SymbolTemplateArgument 
+	= new SymbolTemplateArgument(Symbol sym) 
+	::= Symbol:sym;
+		
+ClassTemplateDeclaration
+	= new ClassTemplateDeclaration(TemplateParameter[] params,String name,InterfaceRef[] interfaces,Declaration[] classBody)
+	::= &Tok.Class &Token.Identifier:name 
+		&Tok.OpenParen TemplateParameterList:params &Tok.CloseParen 
+		[&Tok.Colon InterfaceClasses:interfaces] ClassBody:classBody;
+
+FunctionTemplateDeclaration
+	= new FunctionTemplateDeclaration(TemplateParameter[] params,Parmeter[] funcParams,FunctionBody body)
+	::= Type Identifier &Tok.OpenParen TemplateParameterList &Tok.CloseParen 
+		&Tok.OpenParen FunctionParameterList &Tok.CloseParen FunctionBody;
+	
+//TODO: fix me!	
+FunctionParameterList
+	::= "";

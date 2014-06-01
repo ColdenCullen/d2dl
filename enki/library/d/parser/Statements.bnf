@@ -1,0 +1,250 @@
+.boilerplate{{{/+
+    Copyright (c) 2006 Eric Anderton
+
+    Permission is hereby granted, free of charge, to any person
+    obtaining a copy of this software and associated documentation
+    files (the "Software"), to deal in the Software without
+    restriction, including without limitation the rights to use,
+    copy, modify, merge, publish, distribute, sublicense, and/or
+    sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following
+    conditions:
+
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+    OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+    HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+    OTHER DEALINGS IN THE SOFTWARE.
++/}}}
+
+.import(enki.library.d.Statements);
+
+Statement
+	= Statement stmt
+    ::= LabeledStatement:stmt |
+	    BlockStatement:stmt |
+	    ExpressionStatement:stmt |
+	    DeclarationStatement:stmt |
+	    IfStatement:stmt |
+	    ConditionalStatement:stmt |
+	    WhileStatement:stmt |
+	    DoStatement:stmt |
+	    ForStatement:stmt |
+	    ForeachStatement:stmt |
+	    SwitchStatement:stmt |
+	    CaseStatement:stmt |
+	    DefaultStatement:stmt |
+	    ContinueStatement:stmt |
+	    BreakStatement:stmt |
+	    ReturnStatement:stmt |
+	    GotoStatement:stmt |
+	    WithStatement:stmt |
+	    SynchronizeStatement:stmt |
+	    TryStatement:stmt |
+	    ScopeStatement:stmt |
+	    ThrowStatement:stmt |
+	    VolatileStatement:stmt |
+	    AsmStatement:stmt |
+	    PragmaStatement:stmt;
+ 
+LabeledStatement
+	= new LabeledStatement(String name,Statement stmt)
+    ::= Identifier:name &Tok.Colon Statement:stmt;
+    
+BlockStatement
+	= new BlockStatement(Statement[] statements)
+	::= &Tok.OpenCurly { Statement:~statements } &Tok.CloseCurly;
+
+ExpressionStatement
+	= new ExpressionStatement(Expression expr)
+    ::= Expression:expr &Tok.Semi;
+    
+DeclarationStatement
+	= new DeclarationStatement(Variable[] vars)
+	::= Type:type IdentifierList!(type):vars &Tok.Semi;
+
+IdentifierList(Type type)
+	= Variable[] vars
+	::= Variable!(type):~vars { &Tok.Comma Variable!(type):~vars };
+
+Variable(Type type)
+	= new Variable(Type type,String name,Initializer init)
+	::= Identifier:name [ &Tok.Equals Initializer:init ];
+
+IfStatement
+	= new IfStatement(IfCondition cond,Statement trueBranch,Statement falseBranch)
+	::= &Tok.If &Tok.OpenParen IfCondition:cond &tok.CloseParen 
+		Statement:trueBranch
+		[ &Tok.Else Statement:falseBranch ];
+
+IfCondition
+	= IfCondition cond
+	::= ExpressionIfCondition |
+		AutoIfCondition |
+		DeclaratorIfCondition;
+	
+ExpressionIfCondition
+	= new ExpressionIfCondition(Expression expr)
+	::= Expression:expr;
+	
+AutoIfCondition
+	= new AutoIfCondition(String name,Expression expr)
+	::= &Tok.Auto Identifier:name &Tok.Equals Expression:expr;
+	
+DeclaratorIfCondition
+	= new DeclaratorIfCondition(Declarator decl,Expression expr)
+	::= Declarator:decl &Tok.Equals Expression:expr;
+
+WhileStatement
+    = new WhileStatement(Statement stmt,Expression test)
+    ::= &Tok.While &Tok.OpenParen Expression:test &Tok.CloseParen Statement:stmt ; 
+
+DoStatement
+    = new DoStatement(Statement stmt,Expression test)
+    ::= &Tok.Do Statement:stmt &Tok.While &Tok.OpenParen Expression:test &Tok.CloseParen;
+    
+ForStatement
+	= new ForStatement(Expression startExpr,Declaration startDecl,Expression test,Expression increment)
+	::= &Tok.For &Tok.OpenParen
+		[ Expression:startExpr | Declaration:startDecl ] &Tok.Semi
+		[ Expression:test ] &Tok.Semi
+		[ Expression:increment ]
+		&Tok.CloseParen Statement:stmt;
+	
+ForeachStatement
+	= new ForeachStatement(ForeachType[] types,Expression expr,Statement stmt)
+	::= &Tok.Foreach &Tok.OpenParen ForeachTypeList:types &Tok.Semi Expression:expr &Tok.CloseParen Statement:stmt;
+
+ForeachTypeList	
+	= ForeachType[] types
+	::= ForeachType:~types { ForeachType:~types };
+
+ForeachType
+	= ForeachType ForeachType(bool isInout,Type type,String name)
+	::= [&Tok.Inout @true:isInout] [Type:type] Identifier:name;
+
+	
+SwitchStatement
+	= new SwitchStatement(Expression expr,BlockStatement stmt)
+	::= &Tok.Switch &Tok.OpenParen Expression:expr &Tok.CloseParen BlockStatement:stmt;
+
+CaseStatement
+	= new CaseStatement(Expression[] expressions,Statement stmt)
+	::= &Tok.Case ExpressionList:expressions &Tok.Colon Statement:stmt;
+
+DefaultStatement
+	= new DefaultStatement(Statement stmt)
+	::= &Tok.Default &Tok.Colon Statement:stmt;
+
+	
+ContinueStatement
+	= new ContinueStatement(String label)
+	::= &Tok.Continue Identifier:label &Tok.Semi;
+    
+BreakStatement
+	= new BreakStatement(String label)
+	::= &Tok.Break Identifier:label &Tok.Semi;
+    
+ReturnStatement
+	= new ReturnStatement(Expression expr)
+	::= &Tok.Return Expression:expr &Tok.Semi;
+
+GotoStatement
+	= GotoStatement stmt
+	::= &Tok.Goto (
+	   	GotoLabelStatement:stmt |
+	   	GotoDefaultStatement:stmt |
+	    GotoCaseStatement:stmt
+    ) &Tok.Semi;
+
+GotoLabelStatement
+	= new GotoLabelStatement(String label)
+	::= Identifier:label;
+	
+GotoDefaultStatement
+	= new GotoLabelStatement()
+	::= &Tok.Default;
+
+GotoCaseStatement
+	= new GotoCaseStatement(Expression expr)
+	::= &Tok.Case [Expression:expr];
+    
+WithStatement
+	= WithStatement withStatement
+	::= &Tok.With (
+		WithExpressionStatement:withStatement |
+		WithTemplateStatement:withStatement |
+		WithSymbolStatement:withStatement
+	);
+	
+WithExpressionStatement
+	= new WithExpressionStatement(Expression expr)
+	::= &Tok.OpenParen Expression:expr &Tok.CloseParen BlockStatement;
+	
+WithTemplateStatement
+	= new WithTemplateStatement(TemplateInstance ti)
+	::= &Tok.OpenParen TemplateInstance:ti &Tok.CloseParen BlockStatement;
+	
+WithSymbolStatement
+	= new WithSymbolStatement(String symbol)
+	::= &Tok.OpenParen NamespaceRef:symbol &Tok.CloseParen BlockStatement;
+	
+SynchronizeStatement
+	= new SynchronizeStatement(Statement stmt,Expression expr)
+	::= &Tok.Synchronized ( 
+			Statement:stmt | 
+			&Tok.OpenParen Expression:expr &Tok.CloseParen Statement:stmt
+		);
+	
+TryStatement
+	= new TryStatement(BlockStatement stmt,Catch[] catches,FinallyStatement fin)
+	::= &Tok.Try BlockStatement:stmt (FinallyStatement:fin | Catches:catches [FinallyStatement:fin]);
+
+Catches
+	= Catch catches
+	::= LastCatch:~catches |
+		Catch:~catches |
+		Catch Catches:~catches;
+
+LastCatch
+	= new Catch(stmt)
+	::= &Tok.Catch BlockStatement:stmt;
+
+Catch
+	= new Catch(Declarator decl,BlockStatement stmt)
+	::= &Tok.Catch &Tok.OpenParen Declarator:decl &Tok.CloseParen BlockStatement:stmt;
+		
+FinallyStatement
+	= new FinallyStatement(BlockStatement stmt)
+	::= &Tok.Finally BlockStatement:stmt;
+
+	
+ThrowStatement
+	= new ThrowStatement(Expression expr)
+	::=	&Tok.Throw Expression:expr &Tok.Semi;
+	
+ScopeStatement
+	= new ScopeStatement(uint type,Statement stmt)
+	::=	&Tok.Scope &OpenParen (
+			"exit"		@ScopeStatement.Exit:type |
+			"success"	@ScopeStatement.Success:type |
+			"failure"	@ScopeStatement.Failure:type
+		) &CloseParen Statement:stmt;
+
+VolatileStatement
+	= new VolatileStatement(Statement stmt)
+	::= &Tok.Volatile Statement:stmt;
+	
+AsmStatement
+	= new AsmStatement(AsmInstruction[] instructions)
+	::=	&Tok.Asm [ &Tok.OpenCurly { AsmInstruction:~instructions } &Tok.CloseCurly ];
+
+PragmaStatement
+	= new PragmaStatement(Pragma prag,Statement stmt)
+	::= Pragma:prag [ Statement:stmt ];

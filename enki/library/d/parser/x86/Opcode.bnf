@@ -1,0 +1,832 @@
+.boilerplate{{{/+
+    Copyright (c) 2006 Eric Anderton
+
+    Permission is hereby granted, free of charge, to any person
+    obtaining a copy of this software and associated documentation
+    files (the "Software"), to deal in the Software without
+    restriction, including without limitation the rights to use,
+    copy, modify, merge, publish, distribute, sublicense, and/or
+    sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following
+    conditions:
+
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+    OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+    HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+    OTHER DEALINGS IN THE SOFTWARE.
++/}}}
+
+Opcode
+	= uint op
+	::=	"aaa"			@Opcode.AAA:op |        
+	  	"aad"			@Opcode.AAD:op |        
+	  	"aam"			@Opcode.AAM:op |        
+	  	"aas"			@Opcode.AAS:op |        
+		"aas"			@Opcode.AAS:op |        
+	  	"adc"			@Opcode.ADC:op |        
+	                                          
+	  	"add"			@Opcode.ADD:op |        
+	  	"addpd"			@Opcode.ADDPD:op |      
+	  	"addps"			@Opcode.ADDPS:op |      
+	  	"addsd"			@Opcode.ADDSD:op |      
+		"addsd"			@Opcode.ADDSD:op |      
+	  	"addss"			@Opcode.ADDSS:op |      
+	                                          
+	  	"and"			@Opcode.AND:op |        
+	  	"andnpd"		@Opcode.ANDNPD:op |     
+	  	"andnps"		@Opcode.ANDNPS:op |     
+	  	"andpd"			@Opcode.ANDPD:op |      
+		"andpd"			@Opcode.ANDPD:op |      
+	  	"andps"			@Opcode.ANDPS:op |      
+	                                          
+	  	"arpl"			@Opcode.ARPL:op |       
+	  	"bound"			@Opcode.BOUND:op |      
+	  	"bsf"			@Opcode.BSF:op |        
+	  	"bsr"			@Opcode.BSR:op |        
+		"bsr"			@Opcode.BSR:op |        
+	  	"bswap"			@Opcode.BSWAP:op |      
+	                                          
+	  	"bt"			@Opcode.BT:op |         
+	  	"btc"			@Opcode.BTC:op |        
+	  	"btr"			@Opcode.BTR:op |        
+	  	"bts"			@Opcode.BTS:op |        
+		"bts"			@Opcode.BTS:op |        
+	  	"call"			@Opcode.CALL:op |       
+	                                          
+	  	"cbw"			@Opcode.CBW:op |        
+	  	"cdq"			@Opcode.CDQ:op |        
+	  	"clc"			@Opcode.CLC:op |        
+	  	"cld"			@Opcode.CLD:op |        
+		"cld"			@Opcode.CLD:op |        
+		"clflush"		@Opcode.CLFLUSH:op |    
+	                                          
+	  	"cli"			@Opcode.CLI:op |        
+	  	"clts"			@Opcode.CLTS:op |       
+	  	"cmc"			@Opcode.CMC:op |        
+	  	"cmova"			@Opcode.CMOVA:op |      
+		"cmova"			@Opcode.CMOVA:op |      
+	  	"cmovae"		@Opcode.CMOVAE:op |     
+	                                          
+	  	"cmovb"			@Opcode.CMOVB:op |      
+	  	"cmovbe"		@Opcode.CMOVBE:op |     
+	  	"cmovc"			@Opcode.CMOVC:op |      
+	  	"cmove"			@Opcode.CMOVE:op |      
+		"cmove"			@Opcode.CMOVE:op |      
+	  	"cmovg"			@Opcode.CMOVG:op |      
+	                                          
+	  	"cmovge"		@Opcode.CMOVGE:op |     
+	  	"cmovl"			@Opcode.CMOVL:op |      
+	  	"cmovle"		@Opcode.CMOVLE:op |     
+	  	"cmovna"		@Opcode.CMOVNA:op |     
+		"cmovna"		@Opcode.CMOVNA:op |     
+	  	"cmovnae"		@Opcode.CMOVNAE:op |    
+	                                          
+	  	"cmovnb"		@Opcode.CMOVNB:op |     
+	  	"cmovnbe"		@Opcode.CMOVNBE:op |    
+	  	"cmovnc"		@Opcode.CMOVNC:op |     
+	  	"cmovne"		@Opcode.CMOVNE:op |     
+		"cmovne"		@Opcode.CMOVNE:op |     
+	  	"cmovng"		@Opcode.CMOVNG:op |     
+	                                          
+	  	"cmovnge"		@Opcode.CMOVNGE:op |    
+	  	"cmovnl"		@Opcode.CMOVNL:op |     
+	  	"cmovnle"		@Opcode.CMOVNLE:op |    
+	  	"cmovno"		@Opcode.CMOVNO:op |     
+		"cmovno"		@Opcode.CMOVNO:op |     
+	  	"cmovnp"		@Opcode.CMOVNP:op |     
+	                                          
+	  	"cmovns"		@Opcode.CMOVNS:op |     
+	  	"cmovnz"		@Opcode.CMOVNZ:op |     
+	  	"cmovo"			@Opcode.CMOVO:op |      
+	  	"cmovp"			@Opcode.CMOVP:op |      
+		"cmovp"			@Opcode.CMOVP:op |      
+	  	"cmovpe"		@Opcode.CMOVPE:op |     
+	                                          
+	  	"cmovpo"		@Opcode.CMOVPO:op |     
+	  	"cmovs"			@Opcode.CMOVS:op |      
+	  	"cmovz"			@Opcode.CMOVZ:op |      
+	  	"cmp"			@Opcode.CMP:op |        
+		"cmp"			@Opcode.CMP:op |        
+	  	"cmppd"			@Opcode.CMPPD:op |      
+	                                          
+	  	"cmpps"			@Opcode.CMPPS:op |      
+	  	"cmps"			@Opcode.CMPS:op |       
+	  	"cmpsb"			@Opcode.CMPSB:op |      
+	  	"cmpsd"			@Opcode.CMPSD:op |      
+		"cmpsd"			@Opcode.CMPSD:op |      
+	  	"cmpss"			@Opcode.CMPSS:op |      
+	                                          
+	  	"cmpsw"			@Opcode.CMPSW:op |      
+	  	"cmpxch8b"		@Opcode.CMPXCH8B:op |   
+	  	"cmpxchg"		@Opcode.CMPXCHG:op |    
+	  	"comisd"		@Opcode.COMISD:op |     
+		"comisd"		@Opcode.COMISD:op |     
+	  	"comiss"		@Opcode.COMISS:op |     
+	                                          
+	  	"cpuid"			@Opcode.CPUID:op |      
+		"cvtdq2pd"		@Opcode.CVTDQ2PD:op |   
+		"cvtdq2ps"		@Opcode.CVTDQ2PS:op |   
+		"cvtpd2dq"		@Opcode.CVTPD2DQ:op |   
+	                                          
+		"cvtpd2pi"		@Opcode.CVTPD2PI:op |   
+	                                          
+		"cvtpd2ps"		@Opcode.CVTPD2PS:op |   
+		"cvtpi2pd"		@Opcode.CVTPI2PD:op |   
+		"cvtpi2ps"		@Opcode.CVTPI2PS:op |   
+		"cvtps2dq"		@Opcode.CVTPS2DQ:op |   
+	                                          
+		"cvtps2pd"		@Opcode.CVTPS2PD:op |   
+	                                          
+		"cvtps2pi"		@Opcode.CVTPS2PI:op |   
+		"cvtsd2si"		@Opcode.CVTSD2SI:op |   
+		"cvtsd2ss"		@Opcode.CVTSD2SS:op |   
+		"cvtsi2sd"		@Opcode.CVTSI2SD:op |   
+	                                          
+		"cvtsi2ss"		@Opcode.CVTSI2SS:op |   
+	                                          
+		"cvtss2sd"		@Opcode.CVTSS2SD:op |   
+		"cvtss2si"		@Opcode.CVTSS2SI:op |   
+		"cvttpd2dq"		@Opcode.CVTTPD2DQ:op |  
+		"cvttpd2pi"		@Opcode.CVTTPD2PI:op |  
+	                                          
+		"cvttps2dq"		@Opcode.CVTTPS2DQ:op |  
+	                                          
+		"cvttps2pi"		@Opcode.CVTTPS2PI:op |  
+		"cvttsd2si"		@Opcode.CVTTSD2SI:op |  
+		"cvttss2si"		@Opcode.CVTTSS2SI:op |  
+	  	"cwd"			@Opcode.CWD:op |        
+		"cwd"			@Opcode.CWD:op |        
+	  	"cwde"			@Opcode.CWDE:op |       
+	                	                      
+	  	"da"			@Opcode.DA:op |         
+	  	"daa"			@Opcode.DAA:op |        
+	  	"das"			@Opcode.DAS:op |        
+	  	"db"			@Opcode.DB:op |         
+		"db"			@Opcode.DB:op |         
+	  	"dd"			@Opcode.DD:op |         
+	                	                      
+	  	"de"			@Opcode.DE:op |         
+	  	"dec"			@Opcode.DEC:op |        
+	  	"df"			@Opcode.DF:op |         
+	  	"di"			@Opcode.DI:op |         
+		"di"			@Opcode.DI:op |         
+	  	"div"			@Opcode.DIV:op |        
+	                                          
+		"divpd"			@Opcode.DIVPD:op |      
+		"divps"			@Opcode.DIVPS:op |      
+		"divsd"			@Opcode.DIVSD:op |      
+		"divss"			@Opcode.DIVSS:op |      
+	                	                      
+	  	"dl"			@Opcode.DL:op |         
+	                	                      
+	  	"dq"			@Opcode.DQ:op |         
+	  	"ds"			@Opcode.DS:op |         
+	  	"dt"			@Opcode.DT:op |         
+	  	"dw"			@Opcode.DW:op |         
+		"dw"			@Opcode.DW:op |         
+		"emms"			@Opcode.EMMS:op |       
+	                	                      
+	  	"enter"			@Opcode.ENTER:op |      
+	  	"f2xm1"			@Opcode.F2XM1:op |      
+	  	"fabs"			@Opcode.FABS:op |       
+	  	"fadd"			@Opcode.FADD:op |       
+		"fadd"			@Opcode.FADD:op |       
+	  	"faddp"			@Opcode.FADDP:op |      
+	                	                      
+	  	"fbld"			@Opcode.FBLD:op |       
+	  	"fbstp"			@Opcode.FBSTP:op |      
+	  	"fchs"			@Opcode.FCHS:op |       
+	  	"fclex"			@Opcode.FCLEX:op |      
+		"fclex"			@Opcode.FCLEX:op |      
+	  	"fcmovb"		@Opcode.FCMOVB:op |     
+	                                          
+	  	"fcmovbe"		@Opcode.FCMOVBE:op |    
+	  	"fcmove"		@Opcode.FCMOVE:op |     
+	  	"fcmovnb"		@Opcode.FCMOVNB:op |    
+	  	"fcmovnbe"		@Opcode.FCMOVNBE:op |   
+		"fcmovnbe"		@Opcode.FCMOVNBE:op |   
+	  	"fcmovne"		@Opcode.FCMOVNE:op |    
+	                                          
+	  	"fcmovnu"		@Opcode.FCMOVNU:op |    
+	  	"fcmovu"		@Opcode.FCMOVU:op |     
+	  	"fcom"			@Opcode.FCOM:op |       
+	  	"fcomi"			@Opcode.FCOMI:op |      
+		"fcomi"			@Opcode.FCOMI:op |      
+	  	"fcomip"		@Opcode.FCOMIP:op |     
+	                                          
+	  	"fcomp"			@Opcode.FCOMP:op |      
+	  	"fcompp"		@Opcode.FCOMPP:op |     
+	  	"fcos"			@Opcode.FCOS:op |       
+	  	"fdecstp"		@Opcode.FDECSTP:op |    
+		"fdecstp"		@Opcode.FDECSTP:op |    
+	  	"fdisi"			@Opcode.FDISI:op |      
+	                                          
+	  	"fdiv"			@Opcode.FDIV:op |       
+	  	"fdivp"			@Opcode.FDIVP:op |      
+	  	"fdivr"			@Opcode.FDIVR:op |      
+	  	"fdivrp"		@Opcode.FDIVRP:op |     
+		"fdivrp"		@Opcode.FDIVRP:op |     
+	  	"feni"			@Opcode.FENI:op |       
+	                                          
+	  	"ffree"			@Opcode.FFREE:op |      
+	  	"fiadd"			@Opcode.FIADD:op |      
+	  	"ficom"			@Opcode.FICOM:op |      
+	  	"ficomp"		@Opcode.FICOMP:op |     
+		"ficomp"		@Opcode.FICOMP:op |     
+	  	"fidiv"			@Opcode.FIDIV:op |      
+	                                          
+	  	"fidivr"		@Opcode.FIDIVR:op |     
+	  	"fild"			@Opcode.FILD:op |       
+	  	"fimul"			@Opcode.FIMUL:op |      
+	  	"fincstp"		@Opcode.FINCSTP:op |    
+		"fincstp"		@Opcode.FINCSTP:op |    
+	  	"finit"			@Opcode.FINIT:op |      
+	                                          
+	  	"fist"			@Opcode.FIST:op |       
+	  	"fistp"			@Opcode.FISTP:op |      
+	  	"fisub"			@Opcode.FISUB:op |      
+	  	"fisubr"		@Opcode.FISUBR:op |     
+		"fisubr"		@Opcode.FISUBR:op |     
+	  	"fld"			@Opcode.FLD:op |        
+	                                          
+	  	"fld1"			@Opcode.FLD1:op |       
+	  	"fldcw"			@Opcode.FLDCW:op |      
+	  	"fldenv"		@Opcode.FLDENV:op |     
+	  	"fldl2e"		@Opcode.FLDL2E:op |     
+		"fldl2e"		@Opcode.FLDL2E:op |     
+	  	"fldl2t"		@Opcode.FLDL2T:op |     
+	                                          
+	  	"fldlg2"		@Opcode.FLDLG2:op |     
+	  	"fldln2"		@Opcode.FLDLN2:op |     
+	  	"fldpi"			@Opcode.FLDPI:op |      
+	  	"fldz"			@Opcode.FLDZ:op |       
+		"fldz"			@Opcode.FLDZ:op |       
+	  	"fmul"			@Opcode.FMUL:op |       
+	                                          
+	  	"fmulp"			@Opcode.FMULP:op |      
+	  	"fnclex"		@Opcode.FNCLEX:op |     
+	  	"fndisi"		@Opcode.FNDISI:op |     
+	  	"fneni"			@Opcode.FNENI:op |      
+		"fneni"			@Opcode.FNENI:op |      
+	  	"fninit"		@Opcode.FNINIT:op |     
+	                                          
+	  	"fnop"			@Opcode.FNOP:op |       
+	  	"fnsave"		@Opcode.FNSAVE:op |     
+	  	"fnstcw"		@Opcode.FNSTCW:op |     
+	  	"fnstenv"		@Opcode.FNSTENV:op |    
+		"fnstenv"		@Opcode.FNSTENV:op |    
+	  	"fnstsw"		@Opcode.FNSTSW:op |     
+	                                          
+	  	"fpatan"		@Opcode.FPATAN:op |     
+	  	"fprem"			@Opcode.FPREM:op |      
+	  	"fprem1"		@Opcode.FPREM1:op |     
+	  	"fptan"			@Opcode.FPTAN:op |      
+		"fptan"			@Opcode.FPTAN:op |      
+	  	"frndint"		@Opcode.FRNDINT:op |    
+	                                          
+	  	"frstor"		@Opcode.FRSTOR:op |     
+	  	"fsave"			@Opcode.FSAVE:op |      
+	  	"fscale"		@Opcode.FSCALE:op |     
+	  	"fsetpm"		@Opcode.FSETPM:op |     
+		"fsetpm"		@Opcode.FSETPM:op |     
+	  	"fsin"			@Opcode.FSIN:op |       
+	                                          
+	  	"fsincos"		@Opcode.FSINCOS:op |    
+	  	"fsqrt"			@Opcode.FSQRT:op |      
+	  	"fst"			@Opcode.FST:op |        
+	  	"fstcw"			@Opcode.FSTCW:op |      
+		"fstcw"			@Opcode.FSTCW:op |      
+	  	"fstenv"		@Opcode.FSTENV:op |     
+	                                          
+	  	"fstp"			@Opcode.FSTP:op |       
+	  	"fstsw"			@Opcode.FSTSW:op |      
+	  	"fsub"			@Opcode.FSUB:op |       
+	  	"fsubp"			@Opcode.FSUBP:op |      
+		"fsubp"			@Opcode.FSUBP:op |      
+	  	"fsubr"			@Opcode.FSUBR:op |      
+	                                          
+	  	"fsubrp"		@Opcode.FSUBRP:op |     
+	  	"ftst"			@Opcode.FTST:op |       
+	  	"fucom"			@Opcode.FUCOM:op |      
+	  	"fucomi"		@Opcode.FUCOMI:op |     
+		"fucomi"		@Opcode.FUCOMI:op |     
+	  	"fucomip"		@Opcode.FUCOMIP:op |    
+	                                          
+	  	"fucomp"		@Opcode.FUCOMP:op |     
+	  	"fucompp"		@Opcode.FUCOMPP:op |    
+	  	"fwait"			@Opcode.FWAIT:op |      
+	  	"fxam"			@Opcode.FXAM:op |       
+		"fxam"			@Opcode.FXAM:op |       
+	  	"fxch"			@Opcode.FXCH:op |       
+	                                          
+		"fxrstor"		@Opcode.FXRSTOR:op |    
+		"fxsave"		@Opcode.FXSAVE:op |     
+	  	"fxtract"		@Opcode.FXTRACT:op |    
+	  	"fyl2x"			@Opcode.FYL2X:op |      
+		"fyl2x"			@Opcode.FYL2X:op |      
+	  	"fyl2xp1"		@Opcode.FYL2XP1:op |    
+	                                          
+	  	"hlt"			@Opcode.HLT:op |        
+	  	"idiv"			@Opcode.IDIV:op |       
+	  	"imul"			@Opcode.IMUL:op |       
+	  	"in"			@Opcode.IN:op |         
+		"in"			@Opcode.IN:op |         
+	  	"inc"			@Opcode.INC:op |        
+	                                          
+	  	"ins"			@Opcode.INS:op |        
+	  	"insb"			@Opcode.INSB:op |       
+	  	"insd"			@Opcode.INSD:op |       
+	  	"insw"			@Opcode.INSW:op |       
+		"insw"			@Opcode.INSW:op |       
+	  	"int"			@Opcode.INT:op |        
+	                	                      
+	  	"into"			@Opcode.INTO:op |       
+	  	"invd"			@Opcode.INVD:op |       
+	  	"invlpg"		@Opcode.INVLPG:op |     
+	  	"iret"			@Opcode.IRET:op |       
+		"iret"			@Opcode.IRET:op |       
+	  	"iretd"			@Opcode.IRETD:op |      
+	                	                      
+	  	"ja"			@Opcode.JA:op |         
+	  	"jae"			@Opcode.JAE:op |        
+	  	"jb"			@Opcode.JB:op |         
+	  	"jbe"			@Opcode.JBE:op |        
+		"jbe"			@Opcode.JBE:op |        
+	  	"jc"			@Opcode.JC:op |         
+	                	                      
+	  	"jcxz"			@Opcode.JCXZ:op |       
+	  	"je"			@Opcode.JE:op |         
+	  	"jecxz"			@Opcode.JECXZ:op |      
+	  	"jg"			@Opcode.JG:op |         
+		"jg"			@Opcode.JG:op |         
+	  	"jge"			@Opcode.JGE:op |        
+	                	                      
+	  	"jl"			@Opcode.JL:op |         
+	  	"jle"			@Opcode.JLE:op |        
+	  	"jmp"			@Opcode.JMP:op |        
+	  	"jna"			@Opcode.JNA:op |        
+		"jna"			@Opcode.JNA:op |        
+	  	"jnae"			@Opcode.JNAE:op |       
+	                	                      
+	  	"jnb"			@Opcode.JNB:op |        
+	  	"jnbe"			@Opcode.JNBE:op |       
+	  	"jnc"			@Opcode.JNC:op |        
+	  	"jne"			@Opcode.JNE:op |        
+		"jne"			@Opcode.JNE:op |        
+	  	"jng"			@Opcode.JNG:op |        
+	                                          
+	  	"jnge"			@Opcode.JNGE:op |       
+	  	"jnl"			@Opcode.JNL:op |        
+	  	"jnle"			@Opcode.JNLE:op |       
+	  	"jno"			@Opcode.JNO:op |        
+		"jno"			@Opcode.JNO:op |        
+	  	"jnp"			@Opcode.JNP:op |        
+	                                          
+	  	"jns"			@Opcode.JNS:op |        
+	  	"jnz"			@Opcode.JNZ:op |        
+	  	"jo"			@Opcode.JO:op |         
+	  	"jp"			@Opcode.JP:op |         
+		"jp"			@Opcode.JP:op |         
+	  	"jpe"			@Opcode.JPE:op |        
+	                                          
+	  	"jpo"			@Opcode.JPO:op |        
+	  	"js"			@Opcode.JS:op |         
+	  	"jz"			@Opcode.JZ:op |         
+	  	"lahf"			@Opcode.LAHF:op |       
+		"lahf"			@Opcode.LAHF:op |       
+	  	"lar"			@Opcode.LAR:op |        
+	                                          
+		"ldmxcsr"		@Opcode.LDMXCSR:op |    
+	  	"lds"			@Opcode.LDS:op |        
+	  	"lea"			@Opcode.LEA:op |        
+	  	"leave"			@Opcode.LEAVE:op |      
+		"leave"			@Opcode.LEAVE:op |      
+	  	"les"			@Opcode.LES:op |        
+	                                          
+		"lfence"		@Opcode.LFENCE:op |     
+	  	"lfs"			@Opcode.LFS:op |        
+	  	"lgdt"			@Opcode.LGDT:op |       
+	  	"lgs"			@Opcode.LGS:op |        
+		"lgs"			@Opcode.LGS:op |        
+	  	"lidt"			@Opcode.LIDT:op |       
+	                                          
+	  	"lldt"			@Opcode.LLDT:op |       
+	  	"lmsw"			@Opcode.LMSW:op |       
+		"lock"			@Opcode.LOCK:op |       
+	  	"lods"			@Opcode.LODS:op |       
+		"lods"			@Opcode.LODS:op |       
+	  	"lodsb"			@Opcode.LODSB:op |      
+	                                          
+	  	"lodsd"			@Opcode.LODSD:op |      
+	  	"lodsw"			@Opcode.LODSW:op |      
+	  	"loop"			@Opcode.LOOP:op |       
+	  	"loope"			@Opcode.LOOPE:op |      
+		"loope"			@Opcode.LOOPE:op |      
+	  	"loopne"		@Opcode.LOOPNE:op |     
+	                                          
+	  	"loopnz"		@Opcode.LOOPNZ:op |     
+	  	"loopz"			@Opcode.LOOPZ:op |      
+	  	"lsl"			@Opcode.LSL:op |        
+	  	"lss"			@Opcode.LSS:op |        
+		"lss"			@Opcode.LSS:op |        
+	  	"ltr"			@Opcode.LTR:op |        
+	                                          
+		"maskmovdqu"	@Opcode.MASKMOVDQU:op | 
+		"maskmovq"		@Opcode.MASKMOVQ:op |   
+		"maxpd"			@Opcode.MAXPD:op |      
+		"maxps"			@Opcode.MAXPS:op |      
+	                                          
+		"maxsd"			@Opcode.MAXSD:op |      
+		                                      
+		"maxss"			@Opcode.MAXSS:op |      
+		"mfence"		@Opcode.MFENCE:op |     
+		"minpd"			@Opcode.MINPD:op |      
+		"minps"			@Opcode.MINPS:op |      
+	                                          
+		"minsd"			@Opcode.MINSD:op |      
+	                                          
+		"minss"			@Opcode.MINSS:op |      
+	  	"mov"			@Opcode.MOV:op |        
+		"movapd"		@Opcode.MOVAPD:op |     
+		"movaps"		@Opcode.MOVAPS:op |     
+	                                          
+	  	"movd"			@Opcode.MOVD:op |       
+	                                          
+		"movdq2q"		@Opcode.MOVDQ2Q:op |    
+		"movdqa"		@Opcode.MOVDQA:op |     
+		"movdqu"		@Opcode.MOVDQU:op |     
+		"movhlps"		@Opcode.MOVHLPS:op |    
+	                                          
+		"movhpd"		@Opcode.MOVHPD:op |     
+	                                          
+		"movhps"		@Opcode.MOVHPS:op |     
+		"movlhps"		@Opcode.MOVLHPS:op |    
+		"movlpd"		@Opcode.MOVLPD:op |     
+		"movlps"		@Opcode.MOVLPS:op |     
+	                                          
+		"movmskpd"		@Opcode.MOVMSKPD:op |   
+	                                          
+		"movmskps"		@Opcode.MOVMSKPS:op |   
+		"movntdq"		@Opcode.MOVNTDQ:op |    
+		"movnti"		@Opcode.MOVNTI:op |     
+		"movntpd"		@Opcode.MOVNTPD:op |    
+	                                          
+		"movntps"		@Opcode.MOVNTPS:op |    
+	                                          
+		"movntq"		@Opcode.MOVNTQ:op |     
+	  	"movq"			@Opcode.MOVQ:op |       
+		"movq2dq"		@Opcode.MOVQ2DQ:op |    
+	  	"movs"			@Opcode.MOVS:op |       
+		"movs"			@Opcode.MOVS:op |       
+	  	"movsb"			@Opcode.MOVSB:op |      
+	                                          
+	  	"movsd"			@Opcode.MOVSD:op |      
+		"movss"			@Opcode.MOVSS:op |      
+	  	"movsw"			@Opcode.MOVSW:op |      
+	  	"movsx"			@Opcode.MOVSX:op |      
+		"movsx"			@Opcode.MOVSX:op |      
+		"movupd"		@Opcode.MOVUPD:op |     
+	                                          
+		"movups"		@Opcode.MOVUPS:op |     
+	  	"movzx"			@Opcode.MOVZX:op |      
+	  	"mul"			@Opcode.MUL:op |        
+		"mulpd"			@Opcode.MULPD:op |      
+	                                          
+		"mulps"			@Opcode.MULPS:op |      
+	                                          
+		"mulsd"			@Opcode.MULSD:op |      
+		"mulss"			@Opcode.MULSS:op |      
+	  	"neg"			@Opcode.NEG:op |        
+	  	"nop"			@Opcode.NOP:op |        
+		"nop"			@Opcode.NOP:op |        
+	  	"not"			@Opcode.NOT:op |        
+	                                          
+	  	"or"			@Opcode.OR:op |         
+		"orpd"			@Opcode.ORPD:op |       
+		"orps"			@Opcode.ORPS:op |       
+	  	"out"			@Opcode.OUT:op |        
+		"out"			@Opcode.OUT:op |        
+	  	"outs"			@Opcode.OUTS:op |       
+	                                          
+	  	"outsb"			@Opcode.OUTSB:op |      
+	  	"outsd"			@Opcode.OUTSD:op |      
+	  	"outsw"			@Opcode.OUTSW:op |      
+		"packssdw"		@Opcode.PACKSSDW:op |   
+	                                          
+		"packsswb"		@Opcode.PACKSSWB:op |   
+	                                          
+		"packuswb"		@Opcode.PACKUSWB:op |   
+		"paddb"			@Opcode.PADDB:op |      
+		"paddd"			@Opcode.PADDD:op |      
+		"paddq"			@Opcode.PADDQ:op |      
+	                                          
+		"paddsb"		@Opcode.PADDSB:op |     
+	                                          
+		"paddsw"		@Opcode.PADDSW:op |     
+		"paddusb"		@Opcode.PADDUSB:op |    
+		"paddusw"		@Opcode.PADDUSW:op |    
+		"paddw"			@Opcode.PADDW:op |      
+	                                          
+		"pand"			@Opcode.PAND:op |       
+	                                          
+		"pandn"			@Opcode.PANDN:op |      
+		"pavgb"			@Opcode.PAVGB:op |      
+		"pavgw"			@Opcode.PAVGW:op |      
+		"pcmpeqb"		@Opcode.PCMPEQB:op |    
+	                                          
+		"pcmpeqd"		@Opcode.PCMPEQD:op |    
+	                                          
+		"pcmpeqw"		@Opcode.PCMPEQW:op |    
+		"pcmpgtb"		@Opcode.PCMPGTB:op |    
+		"pcmpgtd"		@Opcode.PCMPGTD:op |    
+		"pcmpgtw"		@Opcode.PCMPGTW:op |    
+	                                          
+		"pextrw"		@Opcode.PEXTRW:op |     
+	                                          
+		"pinsrw"		@Opcode.PINSRW:op |     
+		"pmaddwd"		@Opcode.PMADDWD:op |    
+		"pmaxsw"		@Opcode.PMAXSW:op |     
+		"pmaxub"		@Opcode.PMAXUB:op |     
+	                                          
+		"pminsw"		@Opcode.PMINSW:op |     
+	                                          
+		"pminub"		@Opcode.PMINUB:op |     
+		"pmovmskb"		@Opcode.PMOVMSKB:op |   
+		"pmulhuw"		@Opcode.PMULHUW:op |    
+		"pmulhw"		@Opcode.PMULHW:op |     
+	                                          
+		"pmullw"		@Opcode.PMULLW:op |     
+	                                          
+		"pmuludq"		@Opcode.PMULUDQ:op |    
+	  	"pop"			@Opcode.POP:op |        
+	  	"popa"			@Opcode.POPA:op |       
+	  	"popad"			@Opcode.POPAD:op |      
+		"popad"			@Opcode.POPAD:op |      
+	  	"popf"			@Opcode.POPF:op |       
+	                                          
+	  	"popfd"			@Opcode.POPFD:op |      
+		"por"			@Opcode.POR:op |        
+		"prefetchnta"	@Opcode.PREFETCHNTA:op |
+		"prefetcht0"	@Opcode.PREFETCHT0:op | 
+	                                          
+		"prefetcht1"	@Opcode.PREFETCHT1:op | 
+	                                          
+		"prefetcht2"	@Opcode.PREFETCHT2:op | 
+		"psadbw"		@Opcode.PSADBW:op |     
+		"pshufd"		@Opcode.PSHUFD:op |     
+		"pshufhw"		@Opcode.PSHUFHW:op |    
+	                                          
+		"pshuflw"		@Opcode.PSHUFLW:op |    
+	                                          
+		"pshufw"		@Opcode.PSHUFW:op |     
+		"pslld"			@Opcode.PSLLD:op |      
+		"pslldq"		@Opcode.PSLLDQ:op |     
+		"psllq"			@Opcode.PSLLQ:op |      
+	                                          
+		"psllw"			@Opcode.PSLLW:op |      
+	                                          
+		"psrad"			@Opcode.PSRAD:op |      
+		"psraw"			@Opcode.PSRAW:op |      
+		"psrld"			@Opcode.PSRLD:op |      
+		"psrldq"		@Opcode.PSRLDQ:op |     
+	                                          
+		"psrlq"			@Opcode.PSRLQ:op |      
+	                                          
+		"psrlw"			@Opcode.PSRLW:op |      
+		"psubb"			@Opcode.PSUBB:op |      
+		"psubd"			@Opcode.PSUBD:op |      
+		"psubq"			@Opcode.PSUBQ:op |      
+	                                          
+		"psubsb"		@Opcode.PSUBSB:op |     
+	                                          
+		"psubsw"		@Opcode.PSUBSW:op |     
+		"psubusb"		@Opcode.PSUBUSB:op |    
+		"psubusw"		@Opcode.PSUBUSW:op |    
+		"psubw"			@Opcode.PSUBW:op |      
+	                                          
+		"punpckhbw"		@Opcode.PUNPCKHBW:op |  
+	                                          
+		"punpckhdq"		@Opcode.PUNPCKHDQ:op |  
+		"punpckhqdq"	@Opcode.PUNPCKHQDQ:op | 
+		"punpckhwd"		@Opcode.PUNPCKHWD:op |  
+		"punpcklbw"		@Opcode.PUNPCKLBW:op |  
+	                                          
+		"punpckldq"		@Opcode.PUNPCKLDQ:op |  
+	                                          
+		"punpcklqdq"	@Opcode.PUNPCKLQDQ:op | 
+		"punpcklwd"		@Opcode.PUNPCKLWD:op |  
+	  	"push"			@Opcode.PUSH:op |       
+	  	"pusha"			@Opcode.PUSHA:op |      
+		"pusha"			@Opcode.PUSHA:op |      
+	  	"pushad"		@Opcode.PUSHAD:op |     
+	                                          
+	  	"pushf"			@Opcode.PUSHF:op |      
+	  	"pushfd"		@Opcode.PUSHFD:op |     
+		"pxor"			@Opcode.PXOR:op |       
+	  	"rcl"			@Opcode.RCL:op |        
+		"rcl"			@Opcode.RCL:op |        
+		"rcpps"			@Opcode.RCPPS:op |      
+	                                          
+		"rcpss"			@Opcode.RCPSS:op |      
+	  	"rcr"			@Opcode.RCR:op |        
+	  	"rdmsr"			@Opcode.RDMSR:op |      
+		"rdpmc"			@Opcode.RDPMC:op |      
+	                                          
+	  	"rdtsc"			@Opcode.RDTSC:op |      
+	                                          
+	  	"rep"			@Opcode.REP:op |        
+	  	"repe"			@Opcode.REPE:op |       
+	  	"repne"			@Opcode.REPNE:op |      
+	  	"repnz"			@Opcode.REPNZ:op |      
+		"repnz"			@Opcode.REPNZ:op |      
+	  	"repz"			@Opcode.REPZ:op |       
+	                                          
+	  	"ret"			@Opcode.RET:op |        
+	  	"retf"			@Opcode.RETF:op |       
+	  	"rol"			@Opcode.ROL:op |        
+	  	"ror"			@Opcode.ROR:op |        
+		"ror"			@Opcode.ROR:op |        
+	  	"rsm"			@Opcode.RSM:op |        
+	                                          
+		"rsqrtps"		@Opcode.RSQRTPS:op |    
+		"rsqrtss"		@Opcode.RSQRTSS:op |    
+	  	"sahf"			@Opcode.SAHF:op |       
+	  	"sal"			@Opcode.SAL:op |        
+		"sal"			@Opcode.SAL:op |        
+	  	"sar"			@Opcode.SAR:op |        
+	                                          
+	  	"sbb"			@Opcode.SBB:op |        
+	  	"scas"			@Opcode.SCAS:op |       
+	  	"scasb"			@Opcode.SCASB:op |      
+	  	"scasd"			@Opcode.SCASD:op |      
+		"scasd"			@Opcode.SCASD:op |      
+	  	"scasw"			@Opcode.SCASW:op |      
+	                                          
+	  	"seta"			@Opcode.SETA:op |       
+	  	"setae"			@Opcode.SETAE:op |      
+	  	"setb"			@Opcode.SETB:op |       
+	  	"setbe"			@Opcode.SETBE:op |      
+		"setbe"			@Opcode.SETBE:op |      
+	  	"setc"			@Opcode.SETC:op |       
+	                                          
+	  	"sete"			@Opcode.SETE:op |       
+	  	"setg"			@Opcode.SETG:op |       
+	  	"setge"			@Opcode.SETGE:op |      
+	  	"setl"			@Opcode.SETL:op |       
+		"setl"			@Opcode.SETL:op |       
+	  	"setle"			@Opcode.SETLE:op |      
+	                                          
+	  	"setna"			@Opcode.SETNA:op |      
+	  	"setnae"		@Opcode.SETNAE:op |     
+	  	"setnb"			@Opcode.SETNB:op |      
+	  	"setnbe"		@Opcode.SETNBE:op |     
+		"setnbe"		@Opcode.SETNBE:op |     
+	  	"setnc"			@Opcode.SETNC:op |      
+	                                          
+	  	"setne"			@Opcode.SETNE:op |      
+	  	"setng"			@Opcode.SETNG:op |      
+	  	"setnge"		@Opcode.SETNGE:op |     
+	  	"setnl"			@Opcode.SETNL:op |      
+		"setnl"			@Opcode.SETNL:op |      
+	  	"setnle"		@Opcode.SETNLE:op |     
+	                                          
+	  	"setno"			@Opcode.SETNO:op |      
+	  	"setnp"			@Opcode.SETNP:op |      
+	  	"setns"			@Opcode.SETNS:op |      
+	  	"setnz"			@Opcode.SETNZ:op |      
+		"setnz"			@Opcode.SETNZ:op |      
+	  	"seto"			@Opcode.SETO:op |       
+	                                          
+	  	"setp"			@Opcode.SETP:op |       
+	  	"setpe"			@Opcode.SETPE:op |      
+	  	"setpo"			@Opcode.SETPO:op |      
+	  	"sets"			@Opcode.SETS:op |       
+		"sets"			@Opcode.SETS:op |       
+	  	"setz"			@Opcode.SETZ:op |       
+	                                          
+		"sfence"		@Opcode.SFENCE:op |     
+	  	"sgdt"			@Opcode.SGDT:op |       
+	  	"shl"			@Opcode.SHL:op |        
+	  	"shld"			@Opcode.SHLD:op |       
+		"shld"			@Opcode.SHLD:op |       
+	  	"shr"			@Opcode.SHR:op |        
+	                                          
+	  	"shrd"			@Opcode.SHRD:op |       
+		"shufpd"		@Opcode.SHUFPD:op |     
+		"shufps"		@Opcode.SHUFPS:op |     
+	  	"sidt"			@Opcode.SIDT:op |       
+		"sidt"			@Opcode.SIDT:op |       
+	  	"sldt"			@Opcode.SLDT:op |       
+	                                          
+	  	"smsw"			@Opcode.SMSW:op |       
+		"sqrtpd"		@Opcode.SQRTPD:op |     
+		"sqrtps"		@Opcode.SQRTPS:op |     
+		"sqrtsd"		@Opcode.SQRTSD:op |     
+	                                          
+		"sqrtss"		@Opcode.SQRTSS:op |     
+	                                          
+	  	"stc"			@Opcode.STC:op |        
+	  	"std"			@Opcode.STD:op |        
+	  	"sti"			@Opcode.STI:op |        
+		"stmxcsr"		@Opcode.STMXCSR:op |    
+	                                          
+	  	"stos"			@Opcode.STOS:op |       
+	                                          
+	  	"stosb"			@Opcode.STOSB:op |      
+	  	"stosd"			@Opcode.STOSD:op |      
+	  	"stosw"			@Opcode.STOSW:op |      
+	  	"str"			@Opcode.STR:op |        
+		"str"			@Opcode.STR:op |        
+	  	"sub"			@Opcode.SUB:op |        
+	                                          
+		"subpd"			@Opcode.SUBPD:op |      
+		"subps"			@Opcode.SUBPS:op |      
+		"subsd"			@Opcode.SUBSD:op |      
+		"subss"			@Opcode.SUBSS:op |      
+	                                          
+		"sysenter"		@Opcode.SYSENTER:op |   
+		"sysexit"		@Opcode.SYSEXIT:op |    
+	  	"test"			@Opcode.TEST:op |       
+		"ucomisd"		@Opcode.UCOMISD:op |    
+		"ucomiss"		@Opcode.UCOMISS:op |    
+		"ud2"			@Opcode.UD2:op |        
+		"unpckhpd"		@Opcode.UNPCKHPD:op |   
+		"unpckhps"		@Opcode.UNPCKHPS:op |   
+		"unpcklpd"		@Opcode.UNPCKLPD:op |   
+		"unpcklps"		@Opcode.UNPCKLPS:op |   
+	  	"verr"			@Opcode.VERR:op |       
+	  	"verw"			@Opcode.VERW:op |       
+	  	"wait"			@Opcode.WAIT:op |       
+	  	"wbinvd"		@Opcode.WBINVD:op |     
+	  	"wrmsr"			@Opcode.WRMSR:op |      
+		"wrmsr"			@Opcode.WRMSR:op |      
+	  	"xadd"			@Opcode.XADD:op |       
+	                                          
+	  	"xchg"			@Opcode.XCHG:op |       
+	  	"xlat"			@Opcode.XLAT:op |       
+	  	"xlatb"			@Opcode.XLATB:op |      
+	  	"xor"			@Opcode.XOR:op |        
+		"xor"			@Opcode.XOR:op |        
+		"xorpd"			@Opcode.XORPD:op |      
+	                                          
+		"xorps"			@Opcode.XORPS:op |      
+		"addsubpd"		@Opcode.ADDSUBPD:op |   
+	                                          
+		"addsubps"		@Opcode.ADDSUBPS:op |   
+	  	"fisttp"		@Opcode.FISTTP:op |     
+		"haddpd"		@Opcode.HADDPD:op |     
+		"haddps"		@Opcode.HADDPS:op |     
+	                                          
+		"hsubpd"		@Opcode.HSUBPD:op |     
+	                                          
+		"hsubps"		@Opcode.HSUBPS:op |     
+		"lddqu"			@Opcode.LDDQU:op |      
+		"monitor"		@Opcode.MONITOR:op |    
+		"movddup"		@Opcode.MOVDDUP:op |    
+	                                          
+		"movshdup"		@Opcode.MOVSHDUP:op |   
+	                                          
+		"movsldup"		@Opcode.MOVSLDUP:op |   
+		"mwait"			@Opcode.MWAIT:op |      
+		"pavgusb"		@Opcode.PAVGUSB:op |    
+		"pf2id"			@Opcode.PF2ID:op |      
+		"pfacc"			@Opcode.PFACC:op |      
+		"pfadd"			@Opcode.PFADD:op |      
+	                                          
+		"pfcmpeq"		@Opcode.PFCMPEQ:op |    
+	                                          
+		"pfcmpge"		@Opcode.PFCMPGE:op |    
+		"pfcmpgt"		@Opcode.PFCMPGT:op |    
+		"pfmax"			@Opcode.PFMAX:op |      
+		"pfmin"			@Opcode.PFMIN:op |      
+	                                          
+		"pfmul"			@Opcode.PFMUL:op |      
+	                                          
+		"pfnacc"		@Opcode.PFNACC:op |     
+		"pfpnacc"		@Opcode.PFPNACC:op |    
+		"pfrcp"			@Opcode.PFRCP:op |      
+		"pfrcpit1"		@Opcode.PFRCPIT1:op |   
+	                                          
+		"pfrcpit2"		@Opcode.PFRCPIT2:op |   
+	                                          
+		"pfrsqit1"		@Opcode.PFRSQIT1:op |   
+		"pfrsqrt"		@Opcode.PFRSQRT:op |    
+		"pfsub"			@Opcode.PFSUB:op |      
+		"pfsubr"		@Opcode.PFSUBR:op |     
+	                                          
+		"pi2fd"			@Opcode.PI2FD:op |      
+	                                          
+		"pmulhrw"		@Opcode.PMULHRW:op |    
+		"pswapd"		@Opcode.PSWAPD:op
+	;
+	
+	
+	
+	

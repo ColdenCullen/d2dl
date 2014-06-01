@@ -1,0 +1,98 @@
+.boilerplate{{{/+
+    Copyright (c) 2006 Eric Anderton
+
+    Permission is hereby granted, free of charge, to any person
+    obtaining a copy of this software and associated documentation
+    files (the "Software"), to deal in the Software without
+    restriction, including without limitation the rights to use,
+    copy, modify, merge, publish, distribute, sublicense, and/or
+    sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following
+    conditions:
+
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+    OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+    HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+    OTHER DEALINGS IN THE SOFTWARE.
++/}}}
+
+.import(enki.library.d.Attribute);
+
+AttributeSpecifier
+	= Declaration[] decls
+	::= Attribute ( &Tok.Colon | DeclarationBlock:decls );
+
+Attribute
+	= void setAttrib(Attribute attr)
+	::= LinkageAttribute:attr |
+		AlignAttribute:attr |
+    	Pragma:attr |
+    	BasicAttribute:attr;
+
+BasicAttribute
+	= new BasicAttribute(uint type)
+	::= &Tok.Deprecated	@BasicAttribute.Deprecated:type |
+    	&Tok.Private	@BasicAttribute.Private:type |
+    	&Tok.Package	@BasicAttribute.Package:type |
+    	&Tok.Protected	@BasicAttribute.Protected:type |
+    	&Tok.Public		@BasicAttribute.Public:type |
+    	&Tok.Export		@BasicAttribute.Export:type |
+    	&Tok.Static		@BasicAttribute.Static:type |
+    	&Tok.Final		@BasicAttribute.Final:type |
+    	&Tok.Override 	@BasicAttribute.Override:type |
+    	&Tok.Abstract	@BasicAttribute.Abstract:type |
+    	&Tok.Const		@BasicAttribute.Const:type |
+    	&Tok.Auto		@BasicAttribute.Auto:type 
+    ;
+
+DeclarationBlock
+	= Declaration[] decls
+	::= DeclDef:~decls | &Tok.OpenCurly @pushAndCopyAttribs [ DeclDefs:decls ] @popAttribs &Tok.CloseCurly;
+	
+LinkageAttribute
+	= new LinkageType(uint type)
+	::= &Tok.Extern [ &Tok.OpenParen LinkageType:type &Tok.CloseParen ];
+
+LinkageType
+	= uint type
+	::= "C"					@LinkageType.C:type |
+		"C" &Tok.PlusPlus 	@LinkageType.Cpp:type | 
+		"D" 				@LinkageType.D:type | 
+		"Windows" 			@LinkageType.Windows:type | 
+		"Pascal"			@LinkageType.Pascal:type;
+
+AlignAttribute
+	= new AlignAttribute(Integer amount)
+	::= &Tok.Align [ &Tok.OpenParen &Token.Integer:amount &Tok.CloseParen ];
+	
+Pragma
+	= new Pragma(String name,Expression[] expressions)
+	::= &Tok.Pragma &TokOpenParen &Token.Identifier:name [ &Tok.Comma ExpressionList ] &Tok.CloseParen;
+	
+	
+##### Support for global attribute handling #####
+.code{{{
+	//set up some state to be used across the parser run
+	protected Attribute[][] attribs;
+	
+	void setAttrib(Attribute attr){
+		attribs[$-1] ~= attr;
+	}
+	void pushAttribs(){
+		attribs.length = attribs.length + 1;
+	}
+	void pushAndCopyAttribs(){
+		attribs.length = attribs.length + 1;
+		attribs[$-1] = attribs[$-2].dup;
+	}
+	void popAttribs(){
+		attribs.length = attribs.length - 1;
+	}
+}}}	

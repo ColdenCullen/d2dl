@@ -1,0 +1,69 @@
+.code{{{/+
+    Copyright (c) 2006 Eric Anderton
+
+    Permission is hereby granted, free of charge, to any person
+    obtaining a copy of this software and associated documentation
+    files (the "Software"), to deal in the Software without
+    restriction, including without limitation the rights to use,
+    copy, modify, merge, publish, distribute, sublicense, and/or
+    sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following
+    conditions:
+
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+    OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+    HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+    OTHER DEALINGS IN THE SOFTWARE.
++/}}}
+
+#D Parser
+#Parser Phase - The sequence of tokens is parsed to form syntax trees.
+
+.parsetype(Token);
+.utf("32");
+
+.import(enki.library.d.Token);
+.import(enki.library.d.ParserBackend);
+
+.baseclass(ParserBackend);
+.classname(Parser);
+
+.include("enki/library/d/parser/Asm.bnf");
+.include("enki/library/d/parser/Attribute.bnf");
+.include("enki/library/d/parser/Class.bnf");
+.include("enki/library/d/parser/Conditional.bnf");
+.include("enki/library/d/parser/Declaration.bnf");
+.include("enki/library/d/parser/Enum.bnf");
+.include("enki/library/d/parser/Expression.bnf");
+.include("enki/library/d/parser/Function.bnf");
+.include("enki/library/d/parser/Import.bnf");
+.include("enki/library/d/parser/Interface.bnf");
+.include("enki/library/d/parser/Mixin.bnf");
+.include("enki/library/d/parser/Module.bnf");
+.include("enki/library/d/parser/Struct.bnf");
+.include("enki/library/d/parser/Statements.bnf");
+.include("enki/library/d/parser/Template.bnf");
+
+Syntax = Module mod	::= Module:mod;
+
+#NOTE: these three are made distinct from the original BNF due to inconsistencies
+# where a fully qualified namespace versus a single Identifier is allowed.
+
+Namespace
+	::= &Tok.Identifier { &Tok.Period &Tok.Identifier };
+	
+NamespaceRef
+	::= [&Tok.Period] &Tok.Identifier { &Tok.Period &Tok.Identifier };
+	
+Identifier
+	::= &Tok.Identifier;	
+	
+//TODO: define me - Symbol for SymbolTemplateArgument
+Symbol ::= "";

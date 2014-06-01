@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>DDL Doc Viewer</title>
+		
+		<meta http-equiv="content-type" content="text/html; charset=utf-8">
+		<meta content="text/javascript" http-equiv="content-script-type">
+		
+		<link rel="stylesheet" type="text/css" href="css/layout.css">
+		<link rel="stylesheet" type="text/css" href="css/style.css">
+		<link rel="stylesheet" type="text/css" href="css/tree.css">
+		
+		<!--[if lt IE 7]><link rel="stylesheet" type="text/css" href="css/style-ie.css"><![endif]-->
+		
+		<script language="JavaScript" src="js/yui/yahoo-min.js" type="text/javascript"></script>
+		<script language="JavaScript" src="js/yui/dom-min.js" type="text/javascript"></script>
+		<script language="JavaScript" src="js/yui/dragdrop-min.js" type="text/javascript"></script>
+		<script language="JavaScript" src="js/yui/event-min.js" type="text/javascript"></script>
+		<script language="JavaScript" src="js/yui/animation-min.js" type="text/javascript"></script>
+		<script language="JavaScript" src="js/yui/treeview-min.js" type="text/javascript"></script>
+		<script language="JavaScript" src="js/yui/connection-min.js" type="text/javascript"></script>
+		<script language="JavaScript" src="js/yui/logger-min.js" type="text/javascript"></script>
+		
+		<script language="JavaScript" src="js/ext/yutil-min.js" type="text/javascript"></script>
+		<script language="JavaScript" src="js/ext/updater-min.js" type="text/javascript"></script>
+		<script language="JavaScript" src="js/ext/element-min.js" type="text/javascript"></script>
+		<script language="JavaScript" src="js/ext/splitbar-min.js" type="text/javascript"></script>
+		
+		<script language="JavaScript" src="js/main.js" type="text/javascript"></script>
+		<script language="JavaScript" src="js/tabpanel.js" type="text/javascript"></script>
+		<script language="JavaScript">
+			function main(){
+				var menuModules = [
+					
+    "root",
+    "ddl.all",
+    "ddl.DynamicLibrary",
+    "ddl.ExportSymbol",
+    "ddl.DynamicModule",
+    "ddl.Attributes",
+    "ddl.Mangle",
+    "ddl.DefaultRegistry",
+    "ddl.LoaderRegistry",
+    "ddl.DynamicLibraryLoader",
+    "ddl.FileBuffer",
+    "ddl.Utils",
+    "ddl.DDLException",   
+    "ddl.DDLReader",
+    "ddl.DDLWriter",
+    "ddl.ExpContainer",
+    "ddl.Demangle",
+    "ddl.Linker",
+    "ddl.ar.ArchiveLoader",
+    "ddl.ar.ArchiveLibrary",
+    "ddl.ar.ArchiveReader",
+    "ddl.omf.OMFLoader",
+    "ddl.omf.OMFLibrary",
+    "ddl.omf.OMFModule",
+    "ddl.omf.OMFBinary",
+    "ddl.omf.OMFException",
+    "ddl.omf.OMFReader",
+    "ddl.omf.DLLProvider",
+    "ddl.ddl.DDLLoader",
+    "ddl.ddl.DDLLibrary",
+    "ddl.ddl.DDLBinary",
+    "ddl.elf.ELFObjLoader",
+    "ddl.elf.ELFLibrary",
+    "ddl.elf.ELFHeaders",
+    "ddl.elf.ELFModule",
+    "ddl.elf.ELFBinary",
+    "ddl.elf.ELFReader",
+    "ddl.elf.ELFPrinter",
+    "ddl.insitu.InSituLoader",
+    "ddl.insitu.InSituMapBinary",
+    "ddl.insitu.InSituBinary",
+    "ddl.insitu.InSituLibBinary",
+    "ddl.insitu.InSituLibrary",
+    "ddl.insitu.InSituModule",	
+					null
+				];
+				window.explorer = new Explorer('menu','tabheader','content',menuModules);
+			}
+			
+			YAHOO.util.Event.on(window, 'load', main);
+		</script>
+	</head>
+	<body id="container">
+		<div id="top">
+			<div id="tabheader">
+			</div>
+		</div>
+		<div id="menu"></div>
+		<div id="splitter"></div>
+		<div id="content"></div>
+		<div id="bottom">
+			<!--p>
+				<a href='http://www.dsource.org/projects/ddl'>DDL Project Page</a>
+				<a href='http://www.dsource.org/projects/mango'>Mango Project Page</a>
+				<a href='http://www.digitalmars.com/d'>Digital Mars D</a>
+			</p-->
+			<div id="menutab"></div>
+		</div>
+	</body>
+</html>
+

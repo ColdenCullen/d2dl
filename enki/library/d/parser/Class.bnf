@@ -1,0 +1,103 @@
+.boilerplate{{{/+
+    Copyright (c) 2006 Eric Anderton
+
+    Permission is hereby granted, free of charge, to any person
+    obtaining a copy of this software and associated documentation
+    files (the "Software"), to deal in the Software without
+    restriction, including without limitation the rights to use,
+    copy, modify, merge, publish, distribute, sublicense, and/or
+    sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following
+    conditions:
+
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+    OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+    HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+    OTHER DEALINGS IN THE SOFTWARE.
++/}}}
+
+.import(enki.library.d.Class);
+
+ClassDeclaration
+	= new Class(String name,InterfaceRef[] interfaces,Declaration[] classBody)
+	::= &Tok.Class &Token.Identifier:name [&Tok.Colon InterfaceClasses:interfaces] ClassBody:classBody;
+
+InterfaceClasses
+	= InterfaceRef[] interfaces
+	::=	InterfaceRef:~interfaces { InterfaceRef:~interfaces };
+
+InterfaceRef
+	= InterfaceRef InterfaceRef(uint type,String name)
+	::= [Protection:type] Identifier:name;
+
+Protection
+	= uint type
+	::= &Tok.Private @InterfaceRef.Public:type |
+		&Tok.Private @InterfaceRef.Private:type |
+		&Tok.Private @InterfaceRef.Package:type |
+		&Tok.Private @InterfaceRef.Export:type;
+		
+ClassBody
+	= Declaration[] decls
+	::=	&Tok.OpenCurly @pushAttribs { ClassBodyDeclaration:decls } @popAttribs &Tok.CloseCurly;
+
+ClassBodyDeclaration
+	= Declaration[] decls
+	::= Declaration:~decls |
+		Constructor:~decls |
+		Destructor:~decls |
+		StaticConstructor:~decls |
+		StaticDestructor:~decls |
+		Invariant:~decls |
+		UnitTest:~decls |
+		ClassAllocator:~decls |
+		ClassDeallocator:~decls;
+
+Constructor
+	= new Constructor(Parameter[] params,FunctionBody functionBody)
+	::= &Tok.This &Tok.OpenParen [Parameters:params] &Tok.CloseParen FunctionBody:functionBody;
+	
+Destructor
+	= new Destructor(FunctionBody functionBody)
+	::= &Tok.Cat &Tok.This &Tok.OpenParen &Tok.CloseParen FunctionBody:functionBody;
+	
+StaticConstructor
+	= new StaticConstructor(FunctionBody functionBody)
+	::= &Tok.Static &Tok.This &Tok.OpenParen &Tok.CloseParen FunctionBody:functionBody;
+	
+StaticDestructor
+	= new StaticDestructor(FunctionBody functionBody)
+	::= &Tok.Static &Tok.Cat &Tok.This &Tok.OpenParen &Tok.CloseParen FunctionBody:functionBody;
+	
+Invariant
+	= new Invariant(FunctionBody functionBody)
+	::= &Tok.Invariant FunctionBody:functionBody;
+	
+UnitTest
+	= new UnitTtest(FunctionBody functionBody)
+	::= &Tok.Unittest FunctionBody:functionBody;
+
+ClassAllocator
+	= new ClassAllocator(Parameter[] params,FunctionBody functionBody)
+	::= &Tok.New &Tok.OpenParen [Parameters:params] &Tok.CloseParen FunctionBody:functionBody;
+
+ClassDeallocator
+	= new ClassDeallocator(Parameter[] params,FunctionBody functionBody)
+	::= &Tok.Delete &Tok.OpenParen [Parameters:params] &Tok.CloseParen FunctionBody:functionBody;
+	
+NewAnonClassExpression
+	= new NewAnonClassExpression(Expression[] newArgs,Expression[] classArgs,String superClass,String[] interfaces,Declaration[] classBody)
+	::= &Tok.New [&Tok.OpenParen ArgumentList:newArgs &Tok.CloseParen] 
+		&Tok.Class [&Tok.OpenParen ArgumentList:classArgs &Tok.CloseParen]
+		[SuperClass:superClass] [InterfaceClasses:interfaces] ClassBody:classBody;
+		
+//TODO: allow for templated namespace references as well
+SuperClass
+	::= NamespaceRef;

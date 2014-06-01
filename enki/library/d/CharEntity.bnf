@@ -1,0 +1,280 @@
+.boilerplate{{{/+
+    Copyright (c) 2006 Eric Anderton
+
+    Permission is hereby granted, free of charge, to any person
+    obtaining a copy of this software and associated documentation
+    files (the "Software"), to deal in the Software without
+    restriction, including without limitation the rights to use,
+    copy, modify, merge, publish, distribute, sublicense, and/or
+    sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following
+    conditions:
+
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+    OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+    HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+    OTHER DEALINGS IN THE SOFTWARE.
++/}}}
+
+NamedCharacterEntity 
+	= String tok
+	::=	"quot"			@literal!("&quot;"):tok |
+		"amp"			@literal!("&amp;"):tok |
+		"lt"			@literal!("&lt;"):tok |
+		"gt"			@literal!("&gt;"):tok |
+		"oelig"			@literal!("&OElig;"):tok |
+		"oelig"			@literal!("&oelig;"):tok |
+		"scaron"		@literal!("&Scaron;"):tok |
+		"scaron"		@literal!("&scaron;"):tok |
+		"yuml"			@literal!("&Yuml;"):tok |
+		"circ"			@literal!("&circ;"):tok |
+		"tilde"			@literal!("&tilde;"):tok |
+		"ensp"			@literal!("&ensp;"):tok |
+		"emsp"			@literal!("&emsp;"):tok |
+		"thinsp"		@literal!("&thinsp;"):tok |
+		"zwnj"			@literal!("&zwnj;"):tok |
+		"zwj"			@literal!("&zwj;"):tok |
+		"lrm"			@literal!("&lrm;"):tok |
+		"rlm"			@literal!("&rlm;"):tok |
+		"ndash"			@literal!("&ndash;"):tok |
+		"mdash"			@literal!("&mdash;"):tok |
+		"lsquo"			@literal!("&lsquo;"):tok |
+		"rsquo"			@literal!("&rsquo;"):tok |
+		"sbquo"			@literal!("&sbquo;"):tok |
+		"ldquo"			@literal!("&ldquo;"):tok |
+		"rdquo"			@literal!("&rdquo;"):tok |
+		"bdquo"			@literal!("&bdquo;"):tok |
+		"dagger"		@literal!("&dagger;"):tok |
+		"dagger"		@literal!("&Dagger;"):tok |
+		"permil"		@literal!("&permil;"):tok |
+		"lsaquo"		@literal!("&lsaquo;"):tok |
+		"rsaquo"		@literal!("&rsaquo;"):tok |
+		"euro"			@literal!("&euro;"):tok |
+		"nbsp"			@literal!("&nbsp;"):tok |
+		"iexcl"			@literal!("&iexcl;"):tok |
+		"cent"			@literal!("&cent;"):tok |
+		"pound"			@literal!("&pound;"):tok |
+		"curren"		@literal!("&curren;"):tok |
+		"yen"			@literal!("&yen;"):tok |
+		"brvbar"		@literal!("&brvbar;"):tok |
+		"sect"			@literal!("&sect;"):tok |
+		"uml"			@literal!("&uml;"):tok |
+		"copy"			@literal!("&copy;"):tok |
+		"ordf"			@literal!("&ordf;"):tok |
+		"laquo"			@literal!("&laquo;"):tok |
+		"not"			@literal!("&not;"):tok |
+		"shy"			@literal!("&shy;"):tok |
+		"reg"			@literal!("&reg;"):tok |
+		"macr"			@literal!("&macr;"):tok |
+		"deg"			@literal!("&deg;"):tok |
+		"plusmn"		@literal!("&plusmn;"):tok |
+		"sup2"			@literal!("&sup2;"):tok |
+		"sup3"			@literal!("&sup3;"):tok |
+		"acute"			@literal!("&acute;"):tok |
+		"micro"			@literal!("&micro;"):tok |
+		"para"			@literal!("&para;"):tok |
+		"middot"		@literal!("&middot;"):tok |
+		"cedil"			@literal!("&cedil;"):tok |
+		"sup1"			@literal!("&sup1;"):tok |
+		"ordm"			@literal!("&ordm;"):tok |
+		"raquo"			@literal!("&raquo;"):tok |
+		"frac14"		@literal!("&frac14;"):tok |
+		"frac12"		@literal!("&frac12;"):tok |
+		"frac34"		@literal!("&frac34;"):tok |
+		"iquest"		@literal!("&iquest;"):tok |
+		"agrave"		@literal!("&Agrave;"):tok |
+		"aacute"		@literal!("&Aacute;"):tok |
+		"acirc"			@literal!("&Acirc;"):tok |
+		"atilde"		@literal!("&Atilde;"):tok |
+		"auml"			@literal!("&Auml;"):tok |
+		"aring"			@literal!("&Aring;"):tok |
+		"aelig"			@literal!("&AElig;"):tok |
+		"ccedil"		@literal!("&Ccedil;"):tok |
+		"egrave"		@literal!("&Egrave;"):tok |
+		"eacute"		@literal!("&Eacute;"):tok |
+		"ecirc"			@literal!("&Ecirc;"):tok |
+		"euml"			@literal!("&Euml;"):tok |
+		"igrave"		@literal!("&Igrave;"):tok |
+		"iacute"		@literal!("&Iacute;"):tok |
+		"icirc"			@literal!("&Icirc;"):tok |
+		"iuml"			@literal!("&Iuml;"):tok |
+		"eth"			@literal!("&ETH;"):tok |
+		"ntilde"		@literal!("&Ntilde;"):tok |
+		"ograve"		@literal!("&Ograve;"):tok |
+		"oacute"		@literal!("&Oacute;"):tok |
+		"ocirc"			@literal!("&Ocirc;"):tok |
+		"otilde"		@literal!("&Otilde;"):tok |
+		"ouml"			@literal!("&Ouml;"):tok |
+		"times"			@literal!("&times;"):tok |
+		"oslash"		@literal!("&Oslash;"):tok |
+		"ugrave"		@literal!("&Ugrave;"):tok |
+		"uacute"		@literal!("&Uacute;"):tok |
+		"ucirc"			@literal!("&Ucirc;"):tok |
+		"uuml"			@literal!("&Uuml;"):tok |
+		"yacute"		@literal!("&Yacute;"):tok |
+		"thorn"			@literal!("&THORN;"):tok |
+		"szlig"			@literal!("&szlig;"):tok |
+		"agrave"		@literal!("&agrave;"):tok |
+		"aacute"		@literal!("&aacute;"):tok |
+		"acirc"			@literal!("&acirc;"):tok |
+		"atilde"		@literal!("&atilde;"):tok |
+		"auml"			@literal!("&auml;"):tok |
+		"aring"			@literal!("&aring;"):tok |
+		"aelig"			@literal!("&aelig;"):tok |
+		"ccedil"		@literal!("&ccedil;"):tok |
+		"egrave"		@literal!("&egrave;"):tok |
+		"eacute"		@literal!("&eacute;"):tok |
+		"ecirc"			@literal!("&ecirc;"):tok |
+		"euml"			@literal!("&euml;"):tok |
+		"igrave"		@literal!("&igrave;"):tok |
+		"iacute"		@literal!("&iacute;"):tok |
+		"icirc"			@literal!("&icirc;"):tok |
+		"iuml"			@literal!("&iuml;"):tok |
+		"eth"			@literal!("&eth;"):tok |
+		"ntilde"		@literal!("&ntilde;"):tok |
+		"ograve"		@literal!("&ograve;"):tok |
+		"oacute"		@literal!("&oacute;"):tok |
+		"ocirc"			@literal!("&ocirc;"):tok |
+		"otilde"		@literal!("&otilde;"):tok |
+		"ouml"			@literal!("&ouml;"):tok |
+		"divide"		@literal!("&divide;"):tok |
+		"oslash"		@literal!("&oslash;"):tok |
+		"ugrave"		@literal!("&ugrave;"):tok |
+		"uacute"		@literal!("&uacute;"):tok |
+		"ucirc"			@literal!("&ucirc;"):tok |
+		"uuml"			@literal!("&uuml;"):tok |
+		"yacute"		@literal!("&yacute;"):tok |
+		"thorn"			@literal!("&thorn;"):tok |
+		"yuml"			@literal!("&yuml;"):tok |
+		"fnof"			@literal!("&fnof;"):tok |
+		"alpha"			@literal!("&Alpha;"):tok |
+		"beta"			@literal!("&Beta;"):tok |
+		"gamma"			@literal!("&Gamma;"):tok |
+		"delta"			@literal!("&Delta;"):tok |
+		"epsilon"		@literal!("&Epsilon;"):tok |
+		"zeta"			@literal!("&Zeta;"):tok |
+		"eta"			@literal!("&Eta;"):tok |
+		"theta"			@literal!("&Theta;"):tok |
+		"iota"			@literal!("&Iota;"):tok |
+		"kappa"			@literal!("&Kappa;"):tok |
+		"lambda"		@literal!("&Lambda;"):tok |
+		"mu"			@literal!("&Mu;"):tok |
+		"nu"			@literal!("&Nu;"):tok |
+		"xi"			@literal!("&Xi;"):tok |
+		"omicron"		@literal!("&Omicron;"):tok |
+		"pi"			@literal!("&Pi;"):tok |
+		"rho"			@literal!("&Rho;"):tok |
+		"sigma"			@literal!("&Sigma;"):tok |
+		"tau"			@literal!("&Tau;"):tok |
+		"upsilon"		@literal!("&Upsilon;"):tok |
+		"phi"			@literal!("&Phi;"):tok |
+		"chi"			@literal!("&Chi;"):tok |
+		"psi"			@literal!("&Psi;"):tok |
+		"omega"			@literal!("&Omega;"):tok |
+		"alpha"			@literal!("&alpha;"):tok |
+		"beta"			@literal!("&beta;"):tok |
+		"gamma"			@literal!("&gamma;"):tok |
+		"delta"			@literal!("&delta;"):tok |
+		"epsilon"		@literal!("&epsilon;"):tok |
+		"zeta"			@literal!("&zeta;"):tok |
+		"eta"			@literal!("&eta;"):tok |
+		"theta"			@literal!("&theta;"):tok |
+		"iota"			@literal!("&iota;"):tok |
+		"kappa"			@literal!("&kappa;"):tok |
+		"lambda"		@literal!("&lambda;"):tok |
+		"mu"			@literal!("&mu;"):tok |
+		"nu"			@literal!("&nu;"):tok |
+		"xi"			@literal!("&xi;"):tok |
+		"omicron"		@literal!("&omicron;"):tok |
+		"pi"			@literal!("&pi;"):tok |
+		"rho"			@literal!("&rho;"):tok |
+		"sigmaf"		@literal!("&sigmaf;"):tok |
+		"sigma"			@literal!("&sigma;"):tok |
+		"tau"			@literal!("&tau;"):tok |
+		"upsilon"		@literal!("&upsilon;"):tok |
+		"phi"			@literal!("&phi;"):tok |
+		"chi"			@literal!("&chi;"):tok |
+		"psi"			@literal!("&psi;"):tok |
+		"omega"			@literal!("&omega;"):tok |
+		"thetasym"		@literal!("&thetasym;"):tok |
+		"upsih"			@literal!("&upsih;"):tok |
+		"piv"			@literal!("&piv;"):tok |
+		"bull"			@literal!("&bull;"):tok |
+		"hellip"		@literal!("&hellip;"):tok |
+		"prime"			@literal!("&prime;"):tok |
+		"prime"			@literal!("&Prime;"):tok |
+		"oline"			@literal!("&oline;"):tok |
+		"frasl"			@literal!("&frasl;"):tok |
+		"weierp"		@literal!("&weierp;"):tok |
+		"image"			@literal!("&image;"):tok |
+		"real"			@literal!("&real;"):tok |
+		"trade"			@literal!("&trade;"):tok |
+		"alefsym"		@literal!("&alefsym;"):tok |
+		"larr"			@literal!("&larr;"):tok |
+		"uarr"			@literal!("&uarr;"):tok |
+		"rarr"			@literal!("&rarr;"):tok |
+		"darr"			@literal!("&darr;"):tok |
+		"harr"			@literal!("&harr;"):tok |
+		"crarr"			@literal!("&crarr;"):tok |
+		"larr"			@literal!("&lArr;"):tok |
+		"uarr"			@literal!("&uArr;"):tok |
+		"rarr"			@literal!("&rArr;"):tok |
+		"darr"			@literal!("&dArr;"):tok |
+		"harr"			@literal!("&hArr;"):tok |
+		"forall"		@literal!("&forall;"):tok |
+		"part"			@literal!("&part;"):tok |
+		"exist"			@literal!("&exist;"):tok |
+		"empty"			@literal!("&empty;"):tok |
+		"nabla"			@literal!("&nabla;"):tok |
+		"isin"			@literal!("&isin;"):tok |
+		"notin"			@literal!("&notin;"):tok |
+		"ni"			@literal!("&ni;"):tok |
+		"prod"			@literal!("&prod;"):tok |
+		"sum"			@literal!("&sum;"):tok |
+		"minus"			@literal!("&minus;"):tok |
+		"lowast"		@literal!("&lowast;"):tok |
+		"radic"			@literal!("&radic;"):tok |
+		"prop"			@literal!("&prop;"):tok |
+		"infin"			@literal!("&infin;"):tok |
+		"ang"			@literal!("&ang;"):tok |
+		"and"			@literal!("&and;"):tok |
+		"or"			@literal!("&or;"):tok |
+		"cap"			@literal!("&cap;"):tok |
+		"cup"			@literal!("&cup;"):tok |
+		"int"			@literal!("&int;"):tok |
+		"there4"		@literal!("&there4;"):tok |
+		"sim"			@literal!("&sim;"):tok |
+		"cong"			@literal!("&cong;"):tok |
+		"asymp"			@literal!("&asymp;"):tok |
+		"ne"			@literal!("&ne;"):tok |
+		"equiv"			@literal!("&equiv;"):tok |
+		"le"			@literal!("&le;"):tok |
+		"ge"			@literal!("&ge;"):tok |
+		"sub"			@literal!("&sub;"):tok |
+		"sup"			@literal!("&sup;"):tok |
+		"nsub"			@literal!("&nsub;"):tok |
+		"sube"			@literal!("&sube;"):tok |
+		"supe"			@literal!("&supe;"):tok |
+		"oplus"			@literal!("&oplus;"):tok |
+		"otimes"		@literal!("&otimes;"):tok |
+		"perp"			@literal!("&perp;"):tok |
+		"sdot"			@literal!("&sdot;"):tok |
+		"lceil"			@literal!("&lceil;"):tok |
+		"rceil"			@literal!("&rceil;"):tok |
+		"lfloor"		@literal!("&lfloor;"):tok |
+		"rfloor"		@literal!("&rfloor;"):tok |
+		"lang"			@literal!("&lang;"):tok |
+		"rang"			@literal!("&rang;"):tok |
+		"loz"			@literal!("&loz;"):tok |
+		"spades"		@literal!("&spades;"):tok |
+		"clubs"			@literal!("&clubs;"):tok |
+		"hearts"		@literal!("&hearts;"):tok |
+		"diams"			@literal!("&diams;"):tok
+	;

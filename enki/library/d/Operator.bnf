@@ -1,0 +1,93 @@
+.boilerplate{{{/+
+    Copyright (c) 2006 Eric Anderton
+
+    Permission is hereby granted, free of charge, to any person
+    obtaining a copy of this software and associated documentation
+    files (the "Software"), to deal in the Software without
+    restriction, including without limitation the rights to use,
+    copy, modify, merge, publish, distribute, sublicense, and/or
+    sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following
+    conditions:
+
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+    OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+    HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+    OTHER DEALINGS IN THE SOFTWARE.
++/}}}
+
+##### Other Tokens #####
+# Operators and Special Symbols
+
+Operator
+	= Token Token.operator(Tok tok)
+	::=	"/=" 	@Tok.DivAssign:tok                  |
+		"/" 	@Tok.Div:tok                        |
+		"..." 	@Tok.Elipsis:tok                    |
+		".." 	@Tok.Slice:tok                      |
+		"." 	@Tok.Dot:tok                        |
+		"&=" 	@Tok.AndAssign:tok                  |
+		"&&" 	@Tok.AndAnd:tok                     |
+		"&" 	@Tok.And:tok                        |
+		"|=" 	@Tok.OrAssign:tok                   |
+		"||" 	@Tok.OrOr:tok                       |
+		"|" 	@Tok.Or:tok                         |
+		"--" 	@Tok.MinusMinus:tok                 |
+		"-=" 	@Tok.MinusAssign:tok                |
+		"-" 	@Tok.Minus:tok                      |
+		"++" 	@Tok.PlusPlus:tok                   |
+		"+=" 	@Tok.PlusAssign:tok                 |
+		"+" 	@Tok.Plus:tok                       |
+		"<=" 	@Tok.LessEquals:tok                 |
+		"<<" 	@Tok.LessLess:tok                   |
+		"<<=" 	@Tok.LessLessEquals:tok             |
+		"<>" 	@Tok.LessGreater:tok                |
+		"<>=" 	@Tok.LessGreaterEquals:tok          |
+		"<" 	@Tok.Less:tok                       |
+		">>>" 	@Tok.GreaterGreaterGreater:tok      |
+		">>>=" 	@Tok.GreaterGreaterGreaterEquals:tok|
+		">>=" 	@Tok.GreaterGreaterEquals:tok       |
+		">>" 	@Tok.GreaterGreater:tok             |
+		">=" 	@Tok.GreaterEquals:tok              |
+		">" 	@Tok.Greater:tok                    |
+		"!==" 	@Tok.NotEqualsEquals:tok            |
+		"!=" 	@Tok.NotEquals:tok                  |
+		"!<>" 	@Tok.NotGreaterLess:tok             |
+		"!<>=" 	@Tok.NotGreaterLessEquals:tok       |
+		"!<" 	@Tok.NotLess:tok                    |
+		"!<=" 	@Tok.NotLessEquals:tok              |
+		"!>" 	@Tok.NotGreater:tok                 |
+		"!>=" 	@Tok.NotGreaterEquals:tok           |
+		"!~" 	@Tok.NotCat:tok                     |
+		"!" 	@Tok.Not:tok                        |
+		"(" 	@Tok.OpenParen:tok                  |
+		")" 	@Tok.CloseParen:tok                 |
+		"[" 	@Tok.OpenBracket:tok                |
+		"]" 	@Tok.CloseBracket:tok               |
+		"{" 	@Tok.OpenCurl:tok                   |
+		"}" 	@Tok.CloseCurl:tok                  |
+		"?" 	@Tok.Question:tok                   |
+		","     @Tok.Comma:tok                      |
+		";" 	@Tok.Semi:tok                       |
+		":" 	@Tok.Colon:tok                      |
+		"$" 	@Tok.Dollar:tok                     |
+		"===" 	@Tok.EqualsEqualsEquals:tok         |
+		"==" 	@Tok.EqualsEquals:tok               |
+		"=" 	@Tok.Equals:tok                     |
+		"*=" 	@Tok.StarEquals:tok                 |
+		"*" 	@Tok.Star:tok                       |
+		"%=" 	@Tok.ModEquals:tok                  |
+		"%" 	@Tok.Mod:tok                        |
+		"^=" 	@Tok.InverseEquals:tok              |
+		"^" 	@Tok.Inverse:tok                    |
+		"~=" 	@Tok.CatEquals:tok                  |
+		"~~" 	@Tok.CatCat:tok                     |
+		"~"    	@Tok.Cat:tok                        
+	;

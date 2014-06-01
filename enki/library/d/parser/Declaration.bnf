@@ -1,0 +1,210 @@
+.boilerplate{{{/+
+    Copyright (c) 2006 Eric Anderton
+
+    Permission is hereby granted, free of charge, to any person
+    obtaining a copy of this software and associated documentation
+    files (the "Software"), to deal in the Software without
+    restriction, including without limitation the rights to use,
+    copy, modify, merge, publish, distribute, sublicense, and/or
+    sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following
+    conditions:
+
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+    OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+    HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+    OTHER DEALINGS IN THE SOFTWARE.
++/}}}
+
+.import(enki.library.d.Declaration);
+
+##### Declaration #####
+
+Declaration
+	= new Declaration(bool isTypedef,bool isAlias,Decl decl)
+	::= [ &Tok.Typedef:isTypedef | &Tok.Alias:isAlias ] Decl;
+
+Decl
+	= Decl decl
+	::= MemberDecl:decl &Tok.Semi |
+        MethodDecl:decl |
+		AutoDeclaration:decl &Tok.Semi;
+		
+MemberDecl
+	= new MemberDecl(StorageClass sc,BasicType type,Declarator[] decls)
+	::= StorageClasses:sc BasicType:type Declarators:decls;
+	
+MethodDecl
+	= new MethodDecl(StorageClass sc,BasicType type,Declarator decl,FunctionBody body)
+	::= StorageClasses:sc BasicType:type Declarator:decl FunctionBody:body;
+
+Declarators
+	= new DeclaratorSet(DeclaratorInitializer init,DeclaratorIdentifier[] decls)
+	::= DeclaratorInitializer:init [ &Tok.Comma DeclaratorIdentifierList:decls ];
+
+DeclaratorInitializer
+	= new DeclaratorInitializer(Declarator decl,Initializer[] init)
+	::= Declarator:decl [ &Tok.Equals Initializer:init ];
+
+DeclaratorIdentifierList
+	= DeclaratorIdentifier[] decls
+	::= DeclaratorIdentifier:~decls { &Tok.Comma DeclaratorIdentifier:~decls };
+
+DeclaratorIdentifier
+	= new DeclaratorIdentifier(String name,Initializer[] init)
+	::= Identifier:name [ &Tok.Equals Initializer:init ];
+
+BasicType
+	= BasicType BasicType(type,ident)
+	::= (
+		&Tok.Bool		@BasicType.Bool:type 	|
+        &Tok.Byte		@BasicType.Byte:type 	|
+        &Tok.UByte		@BasicType.UByte:type	|
+        &Tok.Short		@BasicType.Short:type	|
+        &Tok.UShort		@BasicType.UShort:type	|
+        &Tok.Int		@BasicType.Int:type		|
+        &Tok.UInt		@BasicType.UInt:type	|
+        &Tok.Long		@BasicType.Long:type	|
+        &Tok.ULong		@BasicType.ULong:type	|
+        &Tok.Char		@BasicType.Char:type	|
+        &Tok.WChar		@BasicType.WChar:type	|
+        &Tok.DChar		@BasicType.DChar:type	|
+        &Tok.Float		@BasicType.Float:type	|
+        &Tok.Double		@BasicType.Double:type	|
+        &Tok.Real		@BasicType.Real:type	|
+        &Tok.IFloat		@BasicType.IFloat:type	|
+        &Tok.IDouble	@BasicType.IDouble:type	|
+        &Tok.IReal		@BasicType.IReal:type	|
+        &Tok.CFloat		@BasicType.CFloat:type	|
+        &Tok.CDouble	@BasicType.CDouble:type	|
+        &Tok.CReal		@BasicType.CReal:type	|
+        &Tok.Void		@BasicType.Void:type
+    ) | (
+    	([&Tok.Period] IdentifierList):ident @BasicType.User:type
+    ) | (
+    	Typeof [&Tok.Period IdentifierList]:ident @BasicType.Typeof:type
+    );
+
+BasicType2
+	::= &Tok.Star |
+        &Tok.OpenBracket [ Expression | Type ] &Tok.CloseBracket |
+        &Tok.Delegate Parameters |
+        &Tok.Function Parameters;
+
+Declarator
+	::= BasicType2 Declarator |
+        &Token.Identifier [ DeclaratorSuffixes ] |
+        &Tok.OpenParen &Tok.CloseParen Declarator [ DeclaratorSuffixes ];
+
+DeclaratorSuffixes
+	::= DeclaratorSuffix [ DeclaratorSuffixes ];
+
+DeclaratorSuffix
+	::= &tok.OpenBracket [ Expression | Type ] &tok.CloseBracket [Parameters];
+
+IdentifierList
+	::= &Token.Identifier |
+        Identifier &tok.Period IdentifierList |
+        TemplateInstance |
+        TemplateInstance &tok.Period IdentifierList;
+
+Typeof 
+	::= &Tok.Typeof ( Expression );
+
+#NOTE: StorageClass is merged with StorageClasses from the original spec for efficency
+StorageClasses
+	= StorageClass sc
+	::= {
+		&Tok.Abstract 		@StorageClass.Abstract:~sc 		|
+		&Tok.Auto 			@StorageClass.Auto:~sc 			|
+		&Tok.Const 			@StorageClass.Const:~sc 		|
+		&Tok.Deprecated 	@StorageClass.Deprecated:~sc 	|
+		&Tok.Extern 		@StorageClass.Extern:~sc 		|
+		&Tok.Final 			@StorageClass.Final:~sc 		|
+		&Tok.Override 		@StorageClass.Override:~sc 		|
+		&Tok.Static 		@StorageClass.Static:~sc 		|
+		&Tok.Synchronized	@StorageClass.Synchronized:~sc
+	};
+
+Type
+	::= BasicType [ Declarator2 ];
+
+Declarator2
+	::= BasicType2 Declarator2 |
+        &Tok.OpenParen Declarator2 &tok.CloseParen [ DeclaratorSuffixes ];
+
+Parameters
+	= Parameter[] parameters
+	::= &Tok.OpenParen [ ParameterList:~parameters ] &tok.CloseParen;
+
+ParameterList
+	= Parameter[] parameters
+	::= Parameter:~parameters |
+        Parameter:~parameters &Tok.Comma ParameterList:~parameters |
+        Parameter:~parameters &Tok.Elipsis @Parameter.Elipsis:~parameters |
+        &Tok.Elipsis @Parameter.Elipsis:~parameters;
+
+Parameter
+	= new Parameter(uint inoutSpec,Declarator decl,AssignExpression init)
+	::= [ InOut:inoutSpec ] Declarator:decl [ &Tok.Equals AssignExpression:init ];
+
+InOut	
+	= uint spec
+	::= &Tok.In		@Parameter.In:spec |
+		&Tok.Out	@Parameter.Out:spec |
+		&Tok.Inout	@Parameter.Inout:spec
+		;
+
+Initializer
+	= Initializer[] initSet
+	::= &Tok.Void |
+        AssignExpressionInitializer:~initSet |
+        ArrayInitializer:~initSet |
+        StructInitializer:~initSet;
+        
+AssignExpressionInitializer
+	= new AssignExpressionInitializer(AssignExpression init)
+	::= AssignExpression:init;
+
+ArrayInitializer
+	= ArrayInitializer[] initializers
+	::= &Tok.OpenBracket [ ArrayMemberInitializations:initializers ] &tok.CloseBracket;
+
+ArrayMemberInitializations
+	= ArrayInitializer[] initializers
+	::= ArrayMemberInitialization:~initializers [ &Tok.Comma [ ArrayMemberInitializations:~initializers ]];
+
+ArrayMemberInitialization
+	= new ArrayInitializer(AssignExpression keyInit,AssignExpression valueInit)
+	::=	AssignExpression:keyInit [ &Tok.Colon AssignExpression:valueInit ];
+
+StructInitializer
+	= Initializer[] initializers
+	::= &Tok.OpenCurl [ StructMemberInitializers:initializers ] &tok.CloseCurl;
+
+StructMemberInitializers
+	= StructMemberInitializer[] initializers
+	::= StructMemberInitializer:~initializers [ &Tok.Comma [ StructMemberInitializers:~initializers ]];
+
+StructMemberInitializer
+	= new StructMemberInitializer(String name,AssignExpression init)
+	::= [ Identifier:name &Tok.Colon ] AssignExpression:init;
+
+AutoDeclaration
+	= new Declaration(StorageClass sc,String name,AssignExpression init)
+	::=	StorageClasses:sc Identifier:name &Tok.Equals AssignExpression:init &Tok.Semi;
+	
+DeclarationBlock
+	= Declaration[] decls
+	::= Declaration [ &Tok.OpenCurly { Declaration:~decls } ];
+
+Declarations
+	= Declaration[] decls
+	::= Declaration:~decls { Declaration:~decls };

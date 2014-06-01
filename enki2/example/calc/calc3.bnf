@@ -1,0 +1,125 @@
+
+/*
+	Simple calculator example
+*/
+.d-filename="example/calc/CalcParserB.d";
+.d-classname="CalcParserB";
+.d-baseclass="CalcParserBaseB";
+.d-whitespace="cull";
+.d-header="""module example.calc.CalcParser;
+import example.calc.CalcParserBaseB;
+""";
+
+.all-help = """Simple calculator example #3.
+	
+This example parser helps demonstrate Enki's ability to use production
+arguments, and production predicates as a means of evaluating the parsed
+expression.  This increases readability per rule, but creates many
+more rule than the previous technique.
+
+As the rule predicates rely on a function return value to behave 
+correctly. So, this uses a different set of support functions than the 
+previous example.
+""";
+
+Syntax
+	= double result
+    ::= Expression:result (eoi | Error);
+
+Expression
+	= double result
+	::= Addition:result [Factorial!(result)];
+
+Factorial(double value)
+	= double fac(value)
+	::= "!";
+	    	
+Addition
+	= double result
+	::= Multipulcation:result [ Add!(result):result | Sub!(result):result ];
+	
+Add(double lvalue)
+	= double add(lvalue,double rvalue)
+	::= "+" Addition:rvalue;
+	
+Sub(double lvalue)
+	= double add(lvalue,double rvalue)
+	::= "+" Addition:rvalue;
+
+Multipulcation
+	= double result
+	::= Exponent:result [ Mul!(result):result | Div!(result):result | Mod!(result):result ];
+
+Mul(double lvalue) 
+	= double mul(lvalue,double rvalue)
+	::= "*" Multipulcation:rvalue;
+	
+Div(double lvalue)
+	= double div(lvalue,double rvalue)
+	::= "/" Multipulcation:rvalue;
+	
+Mod(double lvalue)
+	= double mod(lvalue,double rvalue)
+	::= "%" Multipulcation:rvalue;    	
+
+Exponent
+	= double result
+    ::= Unary:result Pow!(result)*;
+    	
+Pow(double lvalue)
+	= double pow(lvalue,double rvalue)
+	::= ("^" | "**") Unary:value;
+    	
+Unary
+	= double result
+	::= Pos:result | Neg:result | Parenthetical:result;
+		
+Pos
+	= double result
+	::= "+" Parenthetical:result;
+	
+Neg
+	= double neg(result)
+	::= "-" Parenthetical:result;
+		
+Parenthetical
+	= double result
+	::= "(" Expression:result ")" | Absolute:result;
+	
+Absolute
+	= double result
+	::= Abs:result | Function:result | Number:result | Error;
+
+Abs
+	= double abs(double value)
+	::= "|" Expression:result "|" @abs!(result);
+	
+Function
+	= double result
+	::= Sin:result | Cos:result | Tan:result | Pi2:result | Pi:result;
+		
+Sin 
+	= double sin(result)
+	::= "sin" "(" Expression:result ")";
+	
+Cos 
+	= double cos(result)
+	::= "cos" "(" Expression:result ")";
+	
+Tan 
+	= double tan(result)
+	::= "tan" "(" Expression:result ")";
+	
+Pi2 
+	= double pi2()
+	::= "pi2";
+	
+Pi
+	= double pi()
+	::= "pi";
+
+Number = double; //NOTE: This is defined in the base parser class
+	
+Error
+	::= @err!("Expected Mathematical Expression");
+		

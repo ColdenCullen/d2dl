@@ -1,0 +1,98 @@
+.boilerplate{{{/+
+    Copyright (c) 2006 Eric Anderton
+
+    Permission is hereby granted, free of charge, to any person
+    obtaining a copy of this software and associated documentation
+    files (the "Software"), to deal in the Software without
+    restriction, including without limitation the rights to use,
+    copy, modify, merge, publish, distribute, sublicense, and/or
+    sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following
+    conditions:
+
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+    OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+    HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+    OTHER DEALINGS IN THE SOFTWARE.
++/}}}
+
+Register
+	= uint reg
+	::= "AL" 	@Register.AL:reg	| 
+		"AH" 	@Register.AH:reg	| 
+		"AX" 	@Register.AX:reg	| 
+		"EAX" 	@Register.EAX:reg	|
+		"BL" 	@Register.BL:reg	| 
+		"BH" 	@Register.BH:reg	| 
+		"BX" 	@Register.BX:reg	| 
+		"EBX" 	@Register.EBX:reg	|
+		"CL" 	@Register.CL:reg	| 
+		"CH" 	@Register.CH:reg	| 
+		"CX" 	@Register.CX:reg	| 
+		"ECX" 	@Register.ECX:reg	|
+		"DL" 	@Register.DL:reg	| 
+		"DH" 	@Register.DH:reg	| 
+		"DX" 	@Register.DX:reg	| 
+		"EDX" 	@Register.EDX:reg	|
+		"BP" 	@Register.BP:reg	| 
+		"EBP" 	@Register.EBP:reg	|
+		"SP" 	@Register.SP:reg	| 
+		"ESP"	@Register.ESP:reg	|
+		"DI" 	@Register.DI:reg	| 
+		"EDI" 	@Register.EDI:reg	|
+		"SI" 	@Register.SI:reg	| 
+		"ESI" 	@Register.ESI:reg	|
+		"ES" 	@Register.ES:reg	| 
+		"CS" 	@Register.CS:reg	| 
+		"SS" 	@Register.SS:reg	| 
+		"DS" 	@Register.DS:reg	| 
+		"GS" 	@Register.GS:reg	| 
+		"FS" 	@Register.FS:reg	|
+		"CR0" 	@Register.CR0:reg	| 
+		"CR2" 	@Register.CR2:reg	| 
+		"CR3" 	@Register.CR3:reg	| 
+		"CR4" 	@Register.CR4:reg	|
+		"DR0" 	@Register.DR0:reg	| 
+		"DR1" 	@Register.DR1:reg	| 
+		"DR2" 	@Register.DR2:reg	| 
+		"DR3" 	@Register.DR3:reg	| 
+		"DR6" 	@Register.DR6:reg	| 
+		"DR7"	@Register.DR7:reg	|
+		"TR3" 	@Register.TR3:reg	| 
+		"TR4" 	@Register.TR4:reg	| 
+		"TR5" 	@Register.TR5:reg	| 
+		"TR6" 	@Register.TR6:reg	| 
+		"TR7" 	@Register.TR7:reg	|
+		"MM0" 	@Register.MM0:reg	| 
+		"MM1" 	@Register.MM1:reg	| 
+		"MM2" 	@Register.MM2:reg	| 
+		"MM3" 	@Register.MM3:reg	| 
+		"MM4" 	@Register.MM4:reg	| 
+		"MM5" 	@Register.MM5:reg	| 
+		"MM6" 	@Register.MM6:reg	| 
+		"MM7" 	@Register.MM7:reg	|
+		"XMM0" 	@Register.XMM0:reg	| 
+		"XMM1" 	@Register.XMM1:reg	| 
+		"XMM2" 	@Register.XMM2:reg	| 
+		"XMM3" 	@Register.XMM3:reg	| 
+		"XMM4" 	@Register.XMM4:reg	| 
+		"XMM5" 	@Register.XMM5:reg	| 
+		"XMM6" 	@Register.XMM6:reg	| 
+		"XMM7" 	@Register.XMM7:reg	|
+		"ST"  	@Register.ST:reg	|
+		"ST" &Tok.OpenParen "0" &Tok.CloseParen @Register.ST0:reg	| 
+		"ST" &Tok.OpenParen "1" &Tok.CloseParen @Register.ST1:reg	| 
+		"ST" &Tok.OpenParen "2" &Tok.CloseParen @Register.ST2:reg	| 
+		"ST" &Tok.OpenParen "3" &Tok.CloseParen @Register.ST3:reg	| 
+		"ST" &Tok.OpenParen "4" &Tok.CloseParen @Register.ST4:reg	| 
+		"ST" &Tok.OpenParen "5" &Tok.CloseParen @Register.ST5:reg	| 
+		"ST" &Tok.OpenParen "6" &Tok.CloseParen @Register.ST6:reg	| 
+		"ST" &Tok.OpenParen "7" &Tok.CloseParen	@Register.ST7:reg
+	;

@@ -1,0 +1,142 @@
+.boilerplate{{{/+
+    Copyright (c) 2006 Eric Anderton
+
+    Permission is hereby granted, free of charge, to any person
+    obtaining a copy of this software and associated documentation
+    files (the "Software"), to deal in the Software without
+    restriction, including without limitation the rights to use,
+    copy, modify, merge, publish, distribute, sublicense, and/or
+    sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following
+    conditions:
+
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+    OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+    HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+    OTHER DEALINGS IN THE SOFTWARE.
++/}}}
+
+.import(enki.library.d.Asm);
+.import(enki.library.d.x86.Opcode);
+.import(enki.library.d.x86.Register);
+
+.include("enki/library/d/parser/x86/Register.bnf");
+.include("enki/library/d/parser/x86/Opcode.bnf");
+
+AsmInstruction
+	::= "align" IntegerExpression |
+		"even" |
+		"naked" |
+		"db" Operands |
+		"ds" Operands |
+		"di" Operands |
+		"dl" Operands |
+		"df" Operands |
+		"dd" Operands |
+		"de" Operands |
+		Opcode |
+		Opcode Operands |
+		&Token.Identifier &Tok.Colon AsmInstruction;
+
+IntegerExpression ::= &Token.Integer;
+		
+Operands
+	::=	Operand [ &Tok.Comma Operands ];
+
+Operand
+	::= AsmExp;
+
+AsmExp
+	::= AsmLogOrExp [ &Tok.Question AsmExp &Tok.Colon AsmExp ];
+
+AsmLogOrExp
+	::= AsmLogAndExp [ &Tok.OrOr AsmLogAndExp ];
+
+AsmLogAndExp
+	::= AsmOrExp [ &Tok.AndAnd AsmOrExp ];
+
+AsmOrExp
+	::= AsmXorExp [ &Tok.Or AsmXorExp ];
+
+AsmXorExp
+	::= AsmAndExp [ &Tok.Inverse AsmAndExp ];
+
+AsmAndExp
+	::= AsmEqualExp [ &Tok.And AsmEqualExp ];
+
+AsmEqualExp
+	::= AsmRelExp [ (&Tok.EqualsEquals | &Tok.NotEquals) AsmRelExp ];
+
+AsmRelExp
+	::= AsmShiftExp [
+    	&Tok.Less |
+    	&Tok.LessEquals |
+    	&Tok.Greater |
+    	&Tok.GreaterEquals
+    ] AsmShiftExp;
+
+AsmShiftExp
+	::= AsmAddExp [
+		&Tok.LessLess |
+		&Tok.GreaterGreater |
+		&Tok.GreaterGreaterGreater 
+	] AsmAddExp;
+
+AsmAddExp
+	::= AsmMulExp [
+		&Tok.Add |
+		&Tok.Minus
+	] AsmMulExp;
+
+AsmMulExp
+	::= AsmBrExp [
+		&Tok.Star |
+		&Tok.Div |
+		&Tok.Mod
+	] AsmBrExp;
+	
+AsmBrExp
+	::= AsmUnaExp |
+    AsmBrExp &Tok.OpenBracket AsmExp &Tok.CloseBracket;
+
+AsmUnaExp
+	::= 
+    AsmTypePrefix AsmExp |
+    "offset" AsmExp |
+    "seg" AsmExp |
+    &Tok.Plus AsmUnaExp |
+    &Tok.Minus AsmUnaExp |
+    &Tok.Not AsmUnaExp |
+    &Tok.Cat AsmUnaExp |
+    AsmPrimaryExp;
+
+AsmPrimaryExp
+	::= &Token.Integer |
+	    &Token.FloatingPoint |
+	    "__LOCAL_SIZE" |
+	    &Tok.Dollar |
+	    Register |
+	    DotIdentifier;
+
+DotIdentifier
+	::= Identifier { &Tok.Period Identifier };
+
+AsmTypePrefix
+	= AsmTypePrefix prefix
+	::= "near" "ptr"	@AsmTypePrefix.Near:prefix |
+		"far" "ptr"		@AsmTypePrefix.Far:prefix |
+		"byte" "ptr"	@AsmTypePrefix.Byte:prefix |
+		"short" "ptr" 	@AsmTypePrefix.Short:prefix |
+		"int" "ptr"	 	@AsmTypePrefix.Int:prefix |
+		"word" "ptr" 	@AsmTypePrefix.Word:prefix |
+		"dword" "ptr" 	@AsmTypePrefix.Dword:prefix |
+		"float" "ptr" 	@AsmTypePrefix.Float:prefix |
+		"double" "ptr" 	@AsmTypePrefix.Double:prefix |
+		"real" "ptr"	@AsmTypePrefix.Real:prefix;

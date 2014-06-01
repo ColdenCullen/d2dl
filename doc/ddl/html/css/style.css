@@ -1,0 +1,149 @@
+
+/* set background in Moz */
+body {font:normal 9pt arial; margin:10px;}
+
+html>body #content{
+	background: #FFF;
+	background-image: url('../img/watermark.png');
+	background-repeat: no-repeat;
+	background-position: bottom right;
+}
+
+#top{
+	background: url('../img/logo.png') top left no-repeat;
+	padding-top: 0px;
+}
+
+#content{
+	padding-top: 10px;
+}
+
+#menutree{
+	overflow: hidden;
+}
+
+#bottom{
+	background: #fff;
+}
+
+#bottom p{
+	padding: 10px;
+}
+
+#tabheader{
+	padding: 0px;
+	margin: 0px;
+	display: block;
+	white-space: nowrap;
+	height: 30px;
+}
+
+/**********************************************************/
+.tab-header{
+	height: 30px;
+	width: 100%;
+	table-layout: fixed;
+}
+
+.tab{
+	margin-left: 15px;
+	height: 30px;
+	text-align: left;
+	color: #ddd;
+	cursor: pointer;
+	overflow: hidden;
+	background: url('../img/tab/tab.disabled.left.png') top left no-repeat;
+}
+
+.tab nobr{
+	height: 30px;
+	margin-left: 15px;
+	padding-top: 8px;
+	color: #fff;
+	display: block;
+	background: url('../img/tab/tab.disabled.png') repeat-x;	
+}
+
+.tab-active{
+	background: url('../img/tab/tab.enabled.left.png') top left no-repeat;
+
+}
+
+.tab-active nobr{
+	height: 30px;
+	margin-left: 15px;
+	color: #000;
+	background: url('../img/tab/tab.enabled.png') repeat-x;	
+}
+
+.tab-close{
+	height: 30px;
+	width: 30px;
+	margin-right: 5px;
+	cursor: pointer;
+	background: url('../img/tab/close.disabled.png') top left no-repeat;
+}
+
+.tab-close-active{
+	background: url('../img/tab/close.enabled.png') top left no-repeat;
+}
+
+/**********************************************************/
+
+.tab-body{
+	display: none;
+}
+
+.tab-body-active{
+	display: block;
+}
+
+/**********************************************************/
+.tab-inverted .tab-header{
+	height: 30px;
+	width: 100%;
+	table-layout: fixed;
+}
+
+.tab-inverted .tab{
+	margin-left: 15px;
+	height: 30px;
+	text-align: left;
+	color: #ddd;
+	cursor: pointer;
+	overflow: hidden;
+	background: url('../img/tab-inverted/tab.disabled.left.png') top left no-repeat;
+}
+
+.tab-inverted .tab nobr{
+	height: 30px;
+	margin-left: 15px;
+	padding-top: 8px;
+	color: #fff;
+	display: block;
+	background: url('../img/tab-inverted/tab.disabled.png') repeat-x;	
+}
+
+.tab-inverted .tab-active{
+	background: url('../img/tab-inverted/tab.enabled.left.png') top left no-repeat;
+
+}
+
+.tab-inverted .tab-active nobr{
+	height: 30px;
+	margin-left: 15px;
+	color: #000;
+	background: url('../img/tab-inverted/tab.enabled.png') repeat-x;	
+}
+
+.tab-inverted .tab-close{
+	height: 30px;
+	width: 30px;
+	margin-right: 5px;
+	cursor: pointer;
+	background: url('../img/tab-inverted/close.disabled.png') top left no-repeat;
+}
+
+.tab-inverted .tab-close-active{
+	background: url('../img/tab-inverted/close.enabled.png') top left no-repeat;
+}

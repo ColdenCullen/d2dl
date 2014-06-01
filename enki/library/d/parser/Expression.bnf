@@ -1,0 +1,261 @@
+.boilerplate{{{/+
+    Copyright (c) 2006 Eric Anderton
+
+    Permission is hereby granted, free of charge, to any person
+    obtaining a copy of this software and associated documentation
+    files (the "Software"), to deal in the Software without
+    restriction, including without limitation the rights to use,
+    copy, modify, merge, publish, distribute, sublicense, and/or
+    sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following
+    conditions:
+
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+    OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+    HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+    OTHER DEALINGS IN THE SOFTWARE.
++/}}}
+
+.import(enki.library.d.Expression);
+
+Expression
+	= Expression[] expressions
+	::= AssignExpression:~expressions [ &Tok.Comma Expression:~expressions ];
+
+ExpressionList
+	= Expression[] expressions
+	::= Expression:~expressions { &Tok.Comma Expression:~expressions };	
+	
+AssignExpression
+	::=	ConditionalExpression [ 
+		( 	&Tok.Equals | 
+			&Tok.PlusEquals | 
+			&Tok.MinusEquals | 
+			&Tok.StarEquals |
+			&Tok.DivEquals | 
+			&Tok.PercentEquals | 
+			&Tok.AndEquals | 
+			&Tok.OrEquals |
+			&Tok.InverseEquals | 
+			&Tok.CatEquals | 
+			&Tok.LessLessEquals | 
+			&Tok.GreaterGreaterEquals | 
+			&Tok.GreaterGreaterGreaterEquals
+		) AssignExpression 
+	];
+	
+ConditionalExpression
+	::= OrOrExpression [ &Tok.Question Expression &Tok.Colon ConditionalExpression ];
+
+OrOrExpression
+	::= AndAndExpression | OrOrExpression &Tok.OrOr AndAndExpression;
+
+AndAndExpression
+	::= OrExpression | AndAndExpression &Tok.AndAnd OrExpression;
+
+OrExpression
+	::=	XorExpression |	OrExpression &Tok.Or XorExpression;
+
+XorExpression
+	::=	AndExpression |	XorExpression &Tok.Inverse AndExpression;
+
+AndExpression
+	::= EqualExpression | AndExpression &Tok.And EqualExpression;
+
+EqualExpression
+	::=	RelExpression |
+		EqualExpression [ 
+			(	&Tok.EqualsEquals | 
+				&Tok.NotEquals | 
+				&Tok.Is |
+				&Tok.NotIs
+			) RelExpression
+		];
+
+RelExpression
+	::= ShiftExpression |
+		InExpression |
+		RelExpression [
+			(	&Tok.LessEquals |
+				&Tok.Greater |
+				&Tok.GreaterEquals |
+				&Tok.NotGreaterLessEquals |
+				&Tok.NotGreaterLess |
+				&Tok.LessGreater |
+				&Tok.LessGreaterEquals |
+				&Tok.NotGreater |
+				&Tok.NotGreaterEquals |
+				&Tok.Less |
+				&Tok.LessEquals			
+			) ShiftExpression
+		];
+
+InExpression
+	::= RelExpression &Tok.In ShiftExpression;
+
+ShiftExpression
+	::=	AddExpression |
+		ShiftExpression [
+			(	&Tok.LessLess |
+				&Tok.GreaterGreater |
+				&Tok.GreaterGreaterGreater
+			) AddExpression
+		];
+
+AddExpression
+	::=	MulExpression |
+		AddExpression [
+			(	&Tok.Plus |
+				&Tok.Minus |
+				&Tok.Cat
+			) MulExpression
+		];	
+
+MulExpression
+	::=	UnaryExpression |
+		MulExpression [
+			(	&Tok.Star |
+				&Tok.Div |
+				&Tok.Mod
+			) UnaryExpression
+		];		
+
+UnaryExpression
+	::=	PostfixExpression |
+		(	&Tok.And |
+			&Tok.PlusPlus |
+			&Tok.MinusMinus |
+			&Tok.Star |
+			&Tok.Minus |
+			&Tok.Plus |
+			&Tok.Not |
+			&Tok.Cat
+		) UnaryExpression |
+		&Tok.Delete UnaryExpression |
+		NewExpression |
+		CastExpression |
+		NewAnonClassExpression |
+		&Tok.OpenParen Type &Tok.CloseParen &Tok.Period Identifier;
+
+CastExpression
+	::= &Tok.Cast &Tok.OpenParen Type &Tok.CloseParen UnaryExpression;
+
+PostfixExpression
+	::= PrimaryExpression |
+		PostfixExpression &Tok.Period Identifier |
+		PostfixExpression &Tok.Period NewExpression |
+		PostfixExpression &Tok.PlusPlus |
+		PostfixExpression &Tok.MinusMinus |
+		PostfixExpression &Tok.OpenParen &Tok.CloseParen |
+		PostfixExpression &Tok.OpenParen ArgumentList &Tok.CloseParen |
+		IndexExpression |
+		SliceExpression;
+
+IndexExpression
+	::=	PostfixExpression &Tok.OpenBracket ArgumentList &Tok.CloseBracket;
+
+SliceExpression
+	::= PostfixExpression &Tok.OpenBracket [ AssignExpression &Tok.PeriodPeriod AssignExpression ] &Tok.CloseBracket;
+
+PrimaryExpression
+	::= &Token.Identifier |
+		&Token.Period &Token.Identifier |
+		&Tok.This |
+		&Tok.Super |
+		&Tok.Null |
+		&Tok.True |
+		&Tok.False |
+		&Token.Integer |
+		&Token.FloatingPoint |		
+		&Token.CharLiteral |
+		&Token.StringLiteral |
+		FunctionLiteral |
+		AssertExpression |
+		BasicType &Tok.Period Identifier |
+		&Tok.Typeid &Tok.OpenParen Type &Tok.CloseParen |
+		IsExpression |
+		&Tok.OpenParen Expression &Tok.CloseParen;
+
+
+		
+#TODO: refactor StringLiterals to use Token rendering instead, to glom multiple strings together
+StringLiterals
+	= StringLiteral[] literals
+	::= { StringLiteral:~literals };
+	
+StringLiteral
+	= new StringLiteral(Token tok)
+	::= &Token.StringLiteral:tok;
+
+AssertExpression
+	= new AssertExpression(Expression[] expressions)
+	::= &Tok.Assert &Tok.OpenParen Expression:~expressions [ &Tok.Comma Expression:~expressions ] &Tok.CloseParen;
+
+ArgumentList
+	= Expression[] expressions
+	::= AssignExpression:~expressions [ &Tok.Comma ArgumentList:~expressions ];
+
+NewExpression
+	= Expression expr
+	::=	NewArrayExpression:expr |
+		BasicNewExpression:expr |
+		NewInlineAnonClassExpression:expr;
+
+NewArrayExpression
+	= new NewArrayExpression(Expression[] newArgs,Type type,AssignExpression arg)
+	::= NewArguments:newArgs Type:type &Tok.OpenBracket AssignExpression:arg &Tok.CloseBracket;
+			
+BasicNewExpression
+	= new BasicNewExpression(Expression[] newArgs,Type type,Expression[] args)
+	::= NewArguments:newArgs Type:type [ &Tok.OpenParen ArgumentList:args &Tok.CloseParen ];
+
+NewInlineAnonClassExpression
+	= new NewInlineAnonClassExpression(Expression[] newArgs,Expression[] classArgs,InterfaceRef[] interfaces,Declaration[] decls)
+	::= NewArguments:newArgs ClassArguments:classArgs [InterfaceClasses:interfaces] &Tok.OpenCurly DeclDefs:decls &Tok.CloseCurly;
+
+NewArguments
+	= Expression[] expressions
+	::= &Tok.New [ &TokOpenParen [ ArgumentList:~expressions ] &TokCloseParen ];
+
+ClassArguments
+	= Expression[] expressions
+	::= &Tok.Class [ &TokOpenParen [ ArgumentList:~expressions ] &TokCloseParen ];
+
+//TODO: finish the following
+FunctionLiteral
+	::=
+	&Tok.Function [Type] [ &Tok.OpenParen ArgumentList &Tok.CloseParen ] FunctionBody |
+	&Tok.Delegate [Type] [ &Tok.OpenParen ArgumentList &Tok.CloseParen ] FunctionBody |
+	[ &Tok.OpenParen ArgumentList &Tok.CloseParen ] FunctionBody |
+	FunctionBody;
+
+	
+AssertExpression
+	::= &Tok.Assert &Tok.OpenParen Expression [ &Tok.Comma Expression ] &Tok.CloseParen;
+	
+TypeidExpression
+	::= &Tok.Typeid  &Tok.OpenParen Type &Tok.CloseParen;
+
+IsExpression
+	::= &Tok.Is &TokOpenParen Type [Identifier] [
+		&Tok.Colon TypeSpecialization |
+		&Tok.EqualsEquals TypeSpecialization
+	] &Tok.CloseParen;
+
+TypeSpecialization
+	::= Type |
+		&Tok.Typedef |
+		&Tok.Struct |
+		&Tok.Union |
+		&Tok.Class |
+		&Tok.Interface |
+		&Tok.Enum | 
+		&Tok.Function |
+		&Tok.Delegate;

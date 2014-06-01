@@ -1,0 +1,46 @@
+
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8">
+		<meta content="text/javascript" http-equiv="content-script-type">
+		<title>meta.all</title>
+		<link rel="stylesheet" type="text/css" href="css/style.css">
+		<!--[if lt IE 7]><link rel="stylesheet" type="text/css" href="css/ie6.css"><![endif]-->
+		<script language="JavaScript" src="js/prototype.js" type="text/javascript"></script>
+		<script language="JavaScript" src="js/explorer.js" type="text/javascript"></script>
+		<script language="JavaScript">
+			function main(){
+				var explorer = new Explorer($('explorer'),$('content'),"meta.all");
+				
+    
+				explorer.addModule("meta.all");
+    
+				explorer.addModule("meta.conv");
+    
+				explorer.addModule("meta.ctype");
+    
+				explorer.addModule("meta.demangle");
+    
+				explorer.addModule("meta.generatetable");
+    
+				explorer.addModule("meta.math");
+    
+				explorer.addModule("meta.nameof");
+    
+				explorer.addModule("meta.regexp2");
+    
+				explorer.addModule("meta.string");
+    
+				explorer.addModule("meta.unittests");
+    
+				explorer.addModule("meta.hack.hackgenerate");
+			}
+		</script>
+	</head>
+	<body onload="main()">
+		<div id="pageheader"><h2>DDL</h2></div>
+		<div id="explorer">&nbsp;</div>
+		<div id="content">&nbsp;</div>
+	</body>
+</html>
+

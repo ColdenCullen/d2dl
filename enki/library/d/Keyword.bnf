@@ -1,0 +1,125 @@
+.boilerplate{{{/+
+    Copyright (c) 2006 Eric Anderton
+
+    Permission is hereby granted, free of charge, to any person
+    obtaining a copy of this software and associated documentation
+    files (the "Software"), to deal in the Software without
+    restriction, including without limitation the rights to use,
+    copy, modify, merge, publish, distribute, sublicense, and/or
+    sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following
+    conditions:
+
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+    OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+    HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+    OTHER DEALINGS IN THE SOFTWARE.
++/}}}
+
+##### Keywords #####
+# Keywords are reserved identifiers.
+
+Keyword
+	= Token Token.keyword(Tok tok)
+	::=	"abstract"	 	@Tok.Abstract:tok		|    
+		"alias" 		@Tok.Alia:tok			|        
+		"align" 		@Tok.Align:tok			|       
+		"asm" 			@Tok.Asm:tok			|         
+		"assert" 		@Tok.Assert:tok			|      
+		"auto" 			@Tok.Auto:tok			|        
+		"body" 			@Tok.Body:tok			|        
+		"bool" 			@Tok.Bool:tok			|        
+		"break" 		@Tok.Break:tok			|       
+		"byte" 			@Tok.Byte:tok			|        
+		"case" 			@Tok.Case:tok			|        
+		"cast" 			@Tok.Cast:tok			|        
+		"catch" 		@Tok.Catch:tok			|       
+		"cdouble" 		@Tok.Cdouble:tok		|     
+		"cent" 			@Tok.Cent:tok			|        
+		"cfloat" 		@Tok.Cfloat:tok			|      
+		"char" 			@Tok.Char:tok			|        
+		"class" 		@Tok.Cla:tok			|         
+		"const" 		@Tok.Const:tok			|       
+		"continue" 		@Tok.Continue:tok		|    
+		"creal" 		@Tok.Creal:tok			|       
+		"dchar" 		@Tok.Dchar:tok			|       
+		"debug" 		@Tok.Debug:tok			|       
+		"default" 		@Tok.Default:tok		|     
+		"delegate" 		@Tok.Delegate:tok		|    
+		"delete" 		@Tok.Delete:tok			|      
+		"deprecated" 	@Tok.Deprecated:tok		|  
+		"do" 			@Tok.Do:tok				|          
+		"double" 		@Tok.Double:tok			|      
+		"else" 			@Tok.Else:tok			|        
+		"enum" 			@Tok.Enum:tok			|        
+		"export" 		@Tok.Export:tok			|      
+		"extern" 		@Tok.Extern:tok			|      
+		"false" 		@Tok.False:tok			|       
+		"final" 		@Tok.Final:tok			|       
+		"finally" 		@Tok.Finally:tok		|     
+		"float" 		@Tok.Float:tok			|       
+		"for" 			@Tok.For:tok			|         
+		"foreach" 		@Tok.Foreach:tok		|     
+		"function" 		@Tok.Function:tok		|    
+		"goto" 			@Tok.Goto:tok			|        
+		"idouble" 		@Tok.Idouble:tok		|     
+		"if" 			@Tok.If:tok				|          
+		"ifloat" 		@Tok.Ifloat:tok			|      
+		"import" 		@Tok.Import:tok			|      
+		"in" 			@Tok.In:tok				|          
+		"inout" 		@Tok.Inout:tok			|       
+		"int" 			@Tok.Int:tok			|         
+		"interface" 	@Tok.Interface:tok		|   
+		"invariant" 	@Tok.Invariant:tok		|   
+		"ireal" 		@Tok.Ireal:tok			|       
+		"is" 			@Tok.Is:tok				|           
+		"long" 			@Tok.Long:tok			|        
+		"mixin" 		@Tok.Mixin:tok			|       
+		"module" 		@Tok.Module:tok			|      
+		"new" 			@Tok.New:tok			|         
+		"null" 			@Tok.Null:tok			|        
+		"out" 			@Tok.Out:tok			|         
+		"override" 		@Tok.Override:tok		|    
+		"package" 		@Tok.Package:tok		|     
+		"pragma" 		@Tok.Pragma:tok			|      
+		"private" 		@Tok.Private:tok		|     
+		"protected" 	@Tok.Protected:tok		|   
+		"public" 		@Tok.Public:tok			|      
+		"real" 			@Tok.Real:tok			|        
+		"return" 		@Tok.Return:tok			|      
+		"scope" 		@Tok.Scope:tok			|       
+		"short" 		@Tok.Short:tok			|       
+		"static" 		@Tok.Static:tok			|      
+		"struct" 		@Tok.Struct:tok			|      
+		"super" 		@Tok.Super:tok			|       
+		"switch" 		@Tok.Switch:tok			|      
+		"synchronized" 	@Tok.Synchronized:tok	|
+		"template" 		@Tok.Template:tok		|    
+		"this" 			@Tok.Thi:tok			|         
+		"throw" 		@Tok.Throw:tok			|       
+		"true" 			@Tok.True:tok			|        
+		"try" 			@Tok.Try:tok			|         
+		"typedef" 		@Tok.Typedef:tok		|     
+		"typeid" 		@Tok.Typeid:tok			|      
+		"typeof" 		@Tok.Typeof:tok			|      
+		"ubyte" 		@Tok.Ubyte:tok			|       
+		"ucent" 		@Tok.Ucent:tok			|       
+		"uint" 			@Tok.UInt:tok			|        
+		"ulong" 		@Tok.Ulong:tok			|       
+		"union" 		@Tok.Union:tok			|       
+		"unittest" 		@Tok.Unittest:tok		|    
+		"ushort" 		@Tok.Ushort:tok			|      
+		"version" 		@Tok.Version:tok		|     
+		"void" 			@Tok.Void:tok			|        
+		"volatile" 		@Tok.Volatile:tok		|    
+		"wchar" 		@Tok.Wchar:tok			|       
+		"while" 		@Tok.While:tok			|       
+		"with"			@Tok.With:tok    
+	;

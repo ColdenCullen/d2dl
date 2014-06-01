@@ -1,0 +1,67 @@
+/*
+	Simple calculator example
+*/
+.d-filename="example/calc/CalcParser.d";
+.d-classname="CalcParserT(CharT)";
+.d-baseclass="CalcParserBase!(CharT)";
+.d-header="""module example.calc.CalcParser;
+import example.calc.CalcParserBase;
+""";
+            
+Syntax
+	= double result
+    ::= Expression:result (eoi | Error);
+
+Expression
+	= double result
+	::= Addition:result ["!" @fac!(result)];
+
+Addition
+	= double result
+    ::= Multipulcation:result (
+    		"+" Multipulcation:value @add!(result,value) | 
+    		"-" Multipulcation:value @sub!(result,value)
+    	)*;
+
+Multipulcation
+	= double result
+    ::= Exponent:result (
+    		"*" Exponent:value @mul!(result,value) | 
+    		"/" Exponent:value @div!(result,value) |
+    		"%" Exponent:value @mod!(result,value)
+    	)*;
+    	
+Exponent
+	= double result
+    ::= Parenthetical:result (
+    		"^"  Parenthetical:value @pow!(result,value) | 
+    		"**" Parenthetical:value @pow!(result,value)
+    	)*;
+    	
+Unary
+	= double result
+	::= "+" Parenthetical:result | 
+		"-" Parenthetical:result @neg!(result) | 
+		Parenthetical:result;
+		
+Parenthetical
+	= double result
+	::= "(" Expression:result ")" | Absolute:result;
+	
+Absolute
+	= double result
+	::= "|" Expression:result "|" @abs!(result) | Function:result | Number:result | Error;
+	
+Function
+	= double result
+	::= "sin" "(" Expression:result ")" @sin!(result) |
+		"cos" "(" Expression:result ")" @cos!(result) |
+		"tan" "(" Expression:result ")" @tan!(result) |
+		"pi2" @pi2!(result) |
+		"pi"  @pi!(result);
+
+Number = double; //NOTE: This is defined in the base parser class
+	
+Error
+	::= @err!("Expected Mathematical Expression");
+		

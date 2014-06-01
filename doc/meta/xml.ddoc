@@ -1,0 +1,66 @@
+DDOC =<?xml version="1.0"?>
+<ddoc>
+  <title>$(TITLE)</title>
+  <datetime>$(DATETIME)</datetime>
+  <year>$(YEAR)</year>
+  <copyright>$(COPYRIGHT)</copyright>
+  <body>
+    $(BODY)
+  </body>
+</ddoc>
+
+DDOC_DECL      = <declaration>$0</declaration>
+DDOC_DECL_DD   = <decldescription>$0</decldescription>
+DDOC_SECTIONS  = <sections>$0</sections>
+DDOC_SUMMARY   = <summary>$0</summary>
+DDOC_DESCRIPTION = <description><![CDATA[$0]]></description>
+DDOC_SECTION_H = <section name="$0">
+DDOC_SECTION   = $0</section>
+DDOC_MEMBERS   = <members>$0</members>
+DDOC_PARAMS    = <params>$0</params>
+DDOC_PARAM_ROW = <paramrow>$0</paramrow>
+DDOC_PARAM_ID  = <paramid>$0</paramid>
+DDOC_PARAM_DESC  = <paramdesc>$0</paramdesc>
+DDOC_PSYMBOL  = <psymbol>$0</psymbol>
+DDOC_KEYWORD  = <keyword>$0</keyword>
+DDOC_PARAM    = <param>$0</param>
+DDOC_AUTHORS   = <authors>$0</authors>
+DDOC_BUGS      = <bugs>$0</bugs>
+DDOC_COPYRIGHT = <copyright>$0</copyright>
+DDOC_DATE      = <date>$0</date>
+DDOC_DEPRECATED = <deprecated>$0</deprecated>
+DDOC_EXAMPLES  = <examples>$0</examples>
+DDOC_HISTORY   = <history>$0</history>
+DDOC_LICENSE   = <license>$0</license>
+DDOC_RETURNS   = <returns>$0</returns>
+DDOC_SEE_ALSO  = <seealso>$0</seealso>
+DDOC_STANDARDS = <standards>$0</standards>
+DDOC_THROWS    = <throws>$0</throws>
+DDOC_VERSION   = <version>$0</version>
+D_CODE = <code>$0</code>
+B = $0
+I = $0
+U = $0
+P = $0
+DL = $0
+DT = $0
+DD = $0
+TABLE = $0
+TR = $0
+TH = $0
+TD = $0
+OL = $0
+UL = $0
+LI = $0
+BIG = $0
+SMALL = $0
+BR = $0
+RED = $0
+BLUE =  $0
+GREEN = $0
+YELLOW = $0
+BLACK = $0
+WHITE = $0
+LINK = $0
+LINK2 =	$+
+BR =

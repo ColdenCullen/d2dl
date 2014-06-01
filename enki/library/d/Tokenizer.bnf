@@ -1,0 +1,349 @@
+.boilerplate{{{/+
+    Copyright (c) 2006 Eric Anderton
+
+    Permission is hereby granted, free of charge, to any person
+    obtaining a copy of this software and associated documentation
+    files (the "Software"), to deal in the Software without
+    restriction, including without limitation the rights to use,
+    copy, modify, merge, publish, distribute, sublicense, and/or
+    sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following
+    conditions:
+
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+    OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+    HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+    OTHER DEALINGS IN THE SOFTWARE.
++/}}}
+
+#D Tokenzier
+#Lexer Phase - Tokenization of the source file
+
+.parsetype("String");
+.utf("32");
+
+.module(enki.library.d.Tokenizer);
+
+.import(enki.library.d.TokenizerBase);
+.import(enki.library.d.Token);
+.import(enki.library.d.Keyword);
+.import(enki.library.d.Operator);
+.import(enki.library.d.CharEntity);
+
+
+.baseclass(TokenizerBase);
+.classname(Tokenizer);
+
+.define("String","any","true","any");
+.define(bool,eoi,false,"End of Input");
+.define("String","letter","true","letter");
+	.alias("letter","Letter");
+.define("String","digit","true","digit");
+	.alias("digit","Digit");
+
+.include("enki/library/d/CharEntity.bnf");
+.include("enki/library/d/Character.bnf");
+.include("enki/library/d/Operator.bnf");
+.include("enki/library/d/Keyword.bnf");
+
+##### Space, Comments and EOF #####
+	
+RealEndOfFile 
+	::= #00 | #1A | eoi;
+		
+EndOfFile 
+	::= /RealEndOfFile;
+
+EndOfLine
+	::= (#0D #0A) | #0D | #0A |	EndOfFile;
+
+WhiteSpace
+	::= {Space};
+
+Space
+	::= #20 | #09 | #0B | #0C | EndOfLine;
+		
+Comment
+	= Token Token.comment(String comment)
+	::= ("\x2F\x2A" {any}:comment "\x2A\x2F") | 
+		("\x2F\x2F" {any}:comment EndOfLine) | 
+		("\x2F\x2B" SlashPlusContent:comment);
+
+SlashPlusContent
+	= String comment
+	::= {any}:comment ("\x2B\x2F" | ("\x2F\x2B" SlashPlusContent:~comment));
+	
+##### Tokens #####
+##HACK: Place this here for now	to avoid problems with templates and evaluation order
+Syntax
+	= Token[] tokens
+	::= {
+		Space | 
+		Comment:~tokens |
+		StringLiteral:~tokens | 
+		SpecialToken:~tokens | 
+		SpecialTokenSequence:~tokens |		
+		//Keyword:~tokens |
+		Identifier:~tokens |
+		CharacterLiteral:~tokens | 
+		Operator:~tokens |
+		FloatLiteral:~tokens | 
+		IntegerLiteral:~tokens 				
+	} RealEndOfFile;	
+
+
+				
+##### Identifier #####		
+		
+Identifier
+	= Token Token.identifier(String name)
+	::= (IdentifierStart {IdentifierChar}):name;
+
+IdentifierStart
+	::=	"_" | Letter | UniversalAlpha;
+
+IdentifierChar
+	::= IdentifierStart | Digit;
+			
+UniversalAlpha 
+	::= ("\x5Cu" HexDigit HexDigit HexDigit HexDigit) |
+	("\x5CU" HexDigit HexDigit HexDigit HexDigit HexDigit HexDigit HexDigit HexDigit);
+	
+	
+##### String Literals and String Expressions #####
+	
+StringLiteral
+	= Token tok
+	::= WysiwygString:tok |
+		AlternateWysiwygString:tok |
+		DoubleQuotedString:tok |
+		HexString:tok;
+
+WysiwygString
+	= Token Token.stringLiteral(str,width)
+	::= "r" {WysiwygCharacter}:str "\"" [Postfix:width];
+
+AlternateWysiwygString
+	= Token Token.stringLiteral(str,width)
+	::= "`" {WysiwygCharacter}:str "`" [Postfix:width];
+
+WysiwygCharacter
+	::= Character | EndOfLine;
+
+DoubleQuotedString
+	= Token Token.stringLiteral(str,width)
+	::= "\"" {DoubleQuotedCharacter}:str "\"" [Postfix:width];
+
+DoubleQuotedCharacter
+	::= EscapeSequence | EndOfLine | any;
+
+EscapeSequence
+	= String value
+	::= "\x5C" (
+		"'":value |
+		"\"":value |
+		"?":value |
+		"\x5C" EndOfFile |
+		"\x5C":value |
+		"a" #07:value |
+		"b" #08:value |
+		"t" #09:value |
+		"n" #0A:value |
+		"v" #0B:value |
+		"f" #0C:value |
+		"r" #0D:value |	
+		"x" HexChar2:value |	
+		"u" HexChar4:value |
+		"U" HexChar8:value |	
+		"&" NamedCharacterEntity:value
+		OctChar:value
+	);
+	
+HexChar2
+	= Char hexToChar(digits)
+	::= (HexDigit HexDigit):digits;
+	
+HexChar4
+	= Char hexToChar(digits)
+	::= (HexDigit HexDigit HexDigit HexDigit):digits;
+
+HexChar8
+	= Char hexToChar(digits)
+	::= (HexDigit HexDigit HexDigit HexDigit HexDigit HexDigit HexDigit HexDigit):digits;
+
+OctChar
+	= Char octToChar(digits)
+	::= (
+		OctalDigit OctalDigit OctalDigit |
+		OctalDigit OctalDigit |
+		OctalDigit
+	):digits;
+
+HexString
+	= Token Token.stringLiteral(String str,width)
+	::=	"x\"" {HexStringChar:~str} "\"" [Postfix:width];
+
+HexStringChar
+	= Char hexToChar(String digits)
+	::=	WhiteSpace HexDigit:~digits WhiteSpace HexDigit:~digits;
+
+Postfix
+	= TokenSubtype subtype
+	::= "c" @TokenSubtype.Char:subtype | 
+		"w" @TokenSubtype.WChar:subtype | 
+		"d" @TokenSubtype.DChar:subtype;
+
+	
+##### Character Literals #####	
+	
+CharacterLiteral
+	= Token Token.charLiteral(value)
+	::= "'" SingleQuotedCharacter:value "'";
+
+SingleQuotedCharacter
+	= String value
+	::= Character:value | EscapeSequence:value;
+	
+	
+	
+##### Integer Literals #####
+
+IntegerLiteral
+	= Token Token.integerLiteral(value,subtype)
+	::=	Integer:value [IntegerSuffix:subtype];
+
+Integer
+	= IntegerValue value
+	::= Decimal:value | Binary:value | Octal:value | Hexadecimal:value;
+
+IntegerSuffix
+	= TokenSubtype subtype
+	::= "L" @TokenSubtype.LongInteger:subtype | 
+		"u" @TokenSubtype.UnsignedInteger:subtype | 
+		"U" @TokenSubtype.UnsignedInteger:subtype |
+		"Lu" @TokenSubtype.LongUnsignedInteger:subtype | 
+		"LU" @TokenSubtype.LongUnsignedInteger:subtype |
+		"uL" @TokenSubtype.LongUnsignedInteger:subtype | 
+		"UL" @TokenSubtype.LongUnsignedInteger:subtype;
+	
+Decimal
+	= IntegerValue convertToDecimal(String value)
+	::= ("0":~value | (NonZeroDigit:~value {"_"} {DecimalDigit:~value {"_"}}));
+	
+DecimalDigits
+	= IntegerValue convertToDecimal(String value)
+	::= {"_"} {DecimalDigit:~value {"_"}};
+	
+Binary
+	= IntegerValue convertToBinary(String value)
+	::= ("0b"|"0B") {"_"} {BinaryDigit:~value {"_"}};
+
+Octal
+	= IntegerValue convertToOctal(String value)
+	::= "0" {"_"} {OctalDigit:~value {"_"}};
+
+HexPrefix
+	::= ("0x"|"0X");
+
+Hexadecimal
+	= IntegerValue convertToHex(String value)
+	::= HexPrefix {"_"} {HexDigit:~value {"_"}};
+
+HexDigits
+	= IntegerValue convertToHex(String value)
+	::= {"_"} {HexDigit:~value {"_"}};
+	
+NonZeroDigit
+	= String value
+	::= ("1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"):value;
+	
+DecimalDigit
+	= String value
+	::= ("0" | NonZeroDigit):value;
+
+BinaryDigit
+	= String value
+	::= ("0" | "1"):value;
+
+OctalDigit
+	= String value
+	::= ("0" | "1" | "2" | "3" | "4" | "5" | "6" | "7"):value;
+
+HexDigit
+	= String value
+	::= ("0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | 
+		"a" | "b" | "c" | "d" | "e" | "f" | 
+		"A" | "B" | "C" | "D" | "E" | "F"):value;
+
+				
+##### Floating Literals #####
+
+FloatLiteral
+	= Token Token.floatingLiteral(value,subtype,isImaginary)
+	::= Float:value [FloatSuffix:subtype] [ImaginarySuffix:isImaginary];
+
+Float
+	= FloatingPointValue value
+	::= DecimalFloat:value | HexFloat:value;
+
+DecimalFloat
+	= FloatingPointValue FloatingPointValue(IntegerValue whole,IntegerValue fraction,IntegerValue exponent,bool exponentSign)
+	::=	Decimal:whole "." [DecimalDigits:fraction [DecimalExponent!(exponent,exponentSign)]] |
+		"." DecimalDigits:fraction [DecimalExponent!(exponent,exponentSign):exponent] |
+		Decimal:whole DecimalExponent!(exponent,exponentSign);
+
+DecimalExponent(IntegerValue exponent,bool exponentSign)
+	::=	"e" DecimalDigits:exponent  @true:exponentSign |
+		"E" DecimalDigits:exponent  @true:exponentSign |
+		"e+" DecimalDigits:exponent @true:exponentSign |
+		"E+" DecimalDigits:exponent @true:exponentSign |
+		"e-" DecimalDigits:exponent @false:exponentSign |
+		"E-" DecimalDigits:exponent @false:exponentSign;
+
+HexFloat
+	= FloatingPointValue FloatingPointValue(IntegerValue whole,IntegerValue fraction,IntegerValue exponent,bool exponentSign)
+	::= Hexadecimal:whole "." [HexDigits:fraction [HexExponent!(exponent,exponentSign)]] |
+		HexPrefix "." HexDigits:fraction [HexExponent!(exponent,exponentSign)] |
+		Hexadecimal:whole HexExponent!(exponent,exponentSign);
+
+HexExponent(IntegerValue exponent,bool exponentSign)
+	::=	"p" DecimalDigits:exponent  @true:exponentSign |
+		"P" DecimalDigits:exponent  @true:exponentSign |
+		"p+" DecimalDigits:exponent @true:exponentSign |
+		"P+" DecimalDigits:exponent @true:exponentSign |
+		"p-" DecimalDigits:exponent @false:exponentSign |
+		"P-" DecimalDigits:exponent @false:exponentSign;	
+
+FloatSuffix
+	= TokenSubtype subtype
+	::= "f" @TokenSubtype.Float:subtype |
+		"F" @TokenSubtype.Float:subtype | 
+		"L" @TokenSubtype.Real:subtype;
+
+ImaginarySuffix
+	= bool value
+	::= "i" @true:value | @false:value;
+	
+	
+##### Special Tokens #####
+
+SpecialToken 
+	= Token Token.special(tok)
+	::= "__FILE__":tok | "__LINE__":tok | "__DATE__":tok | "__TIME__":tok | "__TIMESTAMP__":tok;
+	
+##### Special Token Sequences #####
+	
+SpecialTokenSequence
+	= Token Token.lineDirective(number,filespec)
+	::=	"#line" Integer:number [Filespec:filespec] EndOfLine;
+
+Filespec
+	= String value
+	::= "\"" {Character}:value "\"";
