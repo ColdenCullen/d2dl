@@ -1,6 +1,6 @@
 /+
 	Copyright (c) 2005-2007 Eric Anderton
-        
+
 	Permission is hereby granted, free of charge, to any person
 	obtaining a copy of this software and associated documentation
 	files (the "Software"), to deal in the Software without
@@ -33,64 +33,64 @@ private import tango.io.model.IBuffer;
 private import tango.io.model.IConduit;
 private import tango.io.protocol.model.IReader;
 
-typedef ushort OMFIndex;
-typedef uint VWord;
-typedef ushort VByte;
-typedef char[] LString;
+alias OMFIndex = ushort;
+alias VWord = uint;
+alias VByte = ushort;
+alias LString = char[];
 
 /**
 	Reader implementation to ease OMF Parsing.
-	
+
 	The OMFReader helps with some OMF specific behaviors, such as specalized string formats
 	and special index fields.  The reader also contains the current 'type' for the current
 	record, which has certain implications for the getVWord and getVByte methods.
-	
+
 	The class is abstract and is implemented directly via WordOMFREader and DWordOMFReader.
 */
 public class OMFReader : DDLReader{
 	ubyte type;
-	
+
 	protected this(void[] buffer,ubyte type){
 		this.type = type;
 		super(buffer);
 	}
-	
+
 	/// returns: the type of the reader as provided in the construtor.
 	public ubyte getType(){
 		return this.type;
 	}
-	
-	//NOTE: workaround to help D resolve quasi-covaraint overrides	
-	public alias DDLReader.get get;	
-	
+
+	//NOTE: workaround to help D resolve quasi-covaraint overrides
+	public alias DDLReader.get get;
+
 	OMFReader get(inout OMFIndex x){
 		ubyte dataByte;
-				
+
 		get(dataByte);
-		
+
 		// index is bigger than one byte
 		if (dataByte & 0x80){
 			x = cast(OMFIndex)((dataByte & 0x7F) << 8); // preserve lower 7 bits and shift left by 8
 			get(dataByte); // get next byte
 			x += dataByte; // add them together
 		}
-		else x = cast(OMFIndex)dataByte; // the one byte will do	
-		
+		else x = cast(OMFIndex)dataByte; // the one byte will do
+
 		return this;
 	}
-	
+
 	OMFReader get(inout LString x){
 		// read the length
 		ushort strLength;
 		ubyte dataByte;
 		get(dataByte);
-						
+
 		// empty string
 		if(dataByte == 0){
 			 x = cast(LString)"";
 			 return this;
 		}
-		
+
 		//NOTE: this is an undocumented extension to OMF for supporting names greater than 254 chars in length!!!
 		if(dataByte == 255){
 			get(dataByte); // throw away next byte (possibly high-order bytes in little-endian format - usually zero)
@@ -99,11 +99,11 @@ public class OMFReader : DDLReader{
 		else{
 			strLength = dataByte;
 		}
-		
-		get(x,strLength);		
+
+		get(x,strLength);
 		return this;
 	}
-	
+
 	abstract OMFReader get(inout VWord x);
 	abstract OMFReader get(inout VByte x);
 }
@@ -113,17 +113,17 @@ public class OMFReader : DDLReader{
 	for word-oriented (even) OMF records.
 */
 class WordOMFReader : OMFReader{
-	
+
 	//NOTE: workaround to help D resolve quasi-covaraint overrides
 	public alias OMFReader.get get;
-	
+
 	/// Constructor
 	public this(void[] buffer,ubyte type){
 		super(buffer,type);
 	}
-	
-	alias OMFReader.get get; 
-	
+
+	alias OMFReader.get get;
+
 	/// returns: the next word in the buffer/conduit
 	public override OMFReader get(inout VWord x){
 		ushort wordData;
@@ -131,12 +131,12 @@ class WordOMFReader : OMFReader{
 		x = cast(VWord)wordData;
 		return this;
 	}
-	
+
 	/// returns: the next byte in the buffer/conduit
 	public override OMFReader get(inout VByte x){
 		ubyte byteData;
 		get(byteData);
-		x = cast(VByte)byteData;		
+		x = cast(VByte)byteData;
 		return this;
 	}
 }
@@ -147,16 +147,16 @@ class WordOMFReader : OMFReader{
 */
 class DWordOMFReader : OMFReader{
 	//NOTE: workaround to help D resolve quasi-covaraint overrides
-	public alias DDLReader.get get;	
-	public alias OMFReader.get get;	
-	
+	public alias DDLReader.get get;
+	public alias OMFReader.get get;
+
 	/// Constructor
 	public this(void[] buffer,ubyte type){
 		super(buffer,type);
 	}
-	
-	alias OMFReader.get get; 
-	
+
+	alias OMFReader.get get;
+
 	/// returns: the next dword in the buffer/conduit
 	public override OMFReader get(inout VWord x){
 		uint wordData;
@@ -164,12 +164,12 @@ class DWordOMFReader : OMFReader{
 		x = cast(VWord)wordData;
 		return this;
 	}
-	
+
 	/// returns: the next word in the buffer/conduit
 	public override OMFReader get(inout VByte x){
 		ushort byteData;
 		get(byteData);
 		x = cast(VByte)byteData;
-		return this;	
-	}	
+		return this;
+	}
 }
