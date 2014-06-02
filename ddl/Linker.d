@@ -42,7 +42,8 @@ debug private import ddl.Utils;
 
 
 // for the phobos backtrace hack
-version(Stacktrace){
+version(Stacktrace)
+{
 	extern(C) extern void regist_cb(char* name, void* fp);
 	extern(C) extern void addDebugLineInfo__(uint addr, ushort line, char* file);
 }
@@ -57,7 +58,8 @@ class LinkModuleException : Exception{
 	/**
 		Module that prompted the link exception.
 	*/
-	DynamicModule reason(){
+	DynamicModule reason()
+	{
 		return this.mod;
 	}
 
@@ -67,7 +69,8 @@ class LinkModuleException : Exception{
 		Params:
 			reason = the module that prompts the exception
 	*/
-	public this(DynamicModule reason){
+	public this(DynamicModule reason)
+	{
 		super("LinkModuleException: cannot resolve '" ~ reason.getName ~ "'\n" ~ reason.toString());
 		this.mod = reason;
 	}
@@ -79,7 +82,8 @@ class ModuleCtorError : Exception{
 	/**
 		Module that prompted the link exception.
 	*/
-	ModuleInfo reason(){
+	ModuleInfo reason()
+	{
 		return this.mod;
 	}
 
@@ -89,7 +93,8 @@ class ModuleCtorError : Exception{
 		Params:
 			reason = the module that prompts the exception
 	*/
-	public this(ModuleInfo reason){
+	public this(ModuleInfo reason)
+	{
 		super("ModuleCtorError: cannot init '" ~ reason.name ~ "'\n");
 		this.mod = reason;
 	}
@@ -139,14 +144,16 @@ class Linker{
 		Params:
 			registry = the LoaderRegistry to use when loading binaries.
 	*/
-	public this(LoaderRegistry registry){
+	public this(LoaderRegistry registry)
+	{
 		this.registry = registry;
 	}
 
 	/**
 		Returns: the current registry
 	*/
-	public LoaderRegistry getRegistry(){
+	public LoaderRegistry getRegistry()
+	{
 		return this.registry;
 	}
 
@@ -163,7 +170,8 @@ class Linker{
 
 		From here on the provided library
 	*/
-	protected void initModule(ModuleInfo m, int skip){
+	protected void initModule(ModuleInfo m, int skip)
+	{
 		if(m is null) return;
 		if (m.flags & MIctordone) return;
 
@@ -183,7 +191,8 @@ class Linker{
 
 		    m.flags |= MIctorstart;
 		    debug debugLog("running imported modules ({0})...",m.importedModules.length);
-		    foreach(ModuleInfo imported; m.importedModules){
+		    foreach(ModuleInfo imported; m.importedModules)
+			{
 			    debug debugLog("running: [{0:X8}]",cast(void*)imported);
 			    initModule(imported,0);
 			    debug debugLog("-done.");
@@ -201,7 +210,8 @@ class Linker{
 		{
 		    m.flags |= MIctordone;
 		    debug debugLog("running imported modules ({0})...",m.importedModules.length);
-		    foreach(ModuleInfo imported; m.importedModules){
+		    foreach(ModuleInfo imported; m.importedModules)
+			{
 			    debug debugLog("running: [{0:X8}]",cast(void*)imported);
 			    initModule(imported,1);
 			    debug debugLog("-done.");
@@ -313,7 +323,8 @@ class Linker{
 		//mod.isLinking = false;
 
 		foreach (ref sym; modSymbols) {
-			version (Stacktrace){
+			version (Stacktrace)
+			{
 				if (sym.address !is null) {
 					//printf("symbol %.*s line: %d\n", symbol.name, symbol.lineNumber);
 					regist_cb((sym.name ~ '\0').ptr, sym.address);
@@ -369,7 +380,8 @@ class Linker{
 
 		moduleSet a set of modules that need initalization following the link pass.
 	*/
-	/+public void link(DynamicModule mod, inout ModuleSet moduleSet, bool canSelfResolve){
+	/+public void link(DynamicModule mod, inout ModuleSet moduleSet, bool canSelfResolve)
+	{
 		uint i;
 
 		//protect against infinite recursion here by returning early
@@ -385,12 +397,14 @@ class Linker{
 		auto moduleSymbols = mod.getSymbols();
 		printf("Number of symbols: %d"\n, moduleSymbols.length);
 
-		for(i=0; i<moduleSymbols.length; i++){
+		for(i=0; i<moduleSymbols.length; i++)
+		{
 			auto symbol = &(moduleSymbols[i]);
 			printf("Pre-examining %.*s symbol %.*s in %.*s"\n, symbol.getTypeName, symbol.name, mod.getName);
 		}
 
-		for(i=0; i<moduleSymbols.length; i++){
+		for(i=0; i<moduleSymbols.length; i++)
+		{
 			auto symbol = &(moduleSymbols[i]);
 
 			printf("Examining %.*s symbol %.*s in %.*s"\n, symbol.getTypeName, symbol.name, mod.getName);
@@ -400,14 +414,18 @@ class Linker{
 
 			// resolve a dependency from out of the registry
 			debug debugLog("searching %d registered libs",this.libraries.length);
-			foreach(lib; this.libraries){
+			foreach(lib; this.libraries)
+			{
 				auto libMod = lib.getModuleForSymbol(symbol.name);
-				if(libMod && libMod !is mod){
-					if(!libMod.isResolved()){
+				if(libMod && libMod !is mod)
+				{
+					if(!libMod.isResolved())
+					{
 						this.link(libMod,moduleSet,true);
 					}
 					auto otherSymbol = libMod.getSymbol(symbol.name);
-					if(otherSymbol.type == SymbolType.Strong){
+					if(otherSymbol.type == SymbolType.Strong)
+					{
 						debug debugLog("[Linker] found {0} at {1:8X}",otherSymbol.name,otherSymbol.address);
 						symbol.address = otherSymbol.address;
 						symbol.type = SymbolType.Strong;
@@ -423,10 +441,12 @@ class Linker{
 				}
 			}
 			// attempt to self-resolve where needed
-			if(symbol.type == SymbolType.Weak && canSelfResolve){
+			if(symbol.type == SymbolType.Weak && canSelfResolve)
+			{
 				symbol.type = SymbolType.Strong;
 			}
-			else if(symbol.type != SymbolType.Strong){
+			else if(symbol.type != SymbolType.Strong)
+			{
 				char[] ext = symbol.isExternal ? "external" : "local";
 				char[] self = canSelfResolve ? "can Self Resolve" : "cannot Self Resolve";
 				bool isWeak = symbol.type == SymbolType.Weak;
@@ -440,7 +460,8 @@ class Linker{
 		mod.resolveFixups();
 		mod.isLinking = false;
 
-		if(!mod.isResolved()){
+		if(!mod.isResolved())
+		{
 			throw new LinkModuleException(mod);
 		}
 
@@ -448,7 +469,8 @@ class Linker{
 
 		auto allSymbols = mod.getSymbols();
 		foreach (symbol; allSymbols) {
-			version(Stacktrace){
+			version(Stacktrace)
+			{
 				if (symbol.address !is null) {
 					//printf("symbol %.*s line: %d\n", symbol.name, symbol.lineNumber);
 					regist_cb((symbol.name ~ \0).ptr, symbol.address);
@@ -489,7 +511,8 @@ class Linker{
 		linker.link(lib); // link in the library and its aggregate modules
 		---
 	*/
-	public ModuleSet link(DynamicLibrary lib){
+	public ModuleSet link(DynamicLibrary lib)
+	{
 		ModuleSet moduleSet;
 
 		// determine registration status
@@ -504,7 +527,8 @@ class Linker{
 		finishLinking();
 
 		/+// init - run whatever initalizers are pending
-		foreach(mod,moduleInfo; moduleSet){
+		foreach(mod,moduleInfo; moduleSet)
+		{
 			debug debugLog("running {0} init at [{1:8X}]",mod,cast(void*)moduleInfo);
 			this.initModule(moduleInfo,0);
 		}
@@ -531,7 +555,8 @@ class Linker{
 		filename = the filename of the library to load
 		attrStdVersion = (optional) value to match to attribute "std.version" in the loaded library.
 	*/
-	public DynamicLibrary load(char[] filename,char[] attrStdVersion = ""){
+	public DynamicLibrary load(char[] filename, string attrStdVersion = "")
+	{
 		DynamicLibrary result = registry.load(filename,attrStdVersion);
 		return result;
 	}
@@ -539,9 +564,11 @@ class Linker{
 	/**
 		Registers a library with the linker to be used during link operations.
 	*/
-	public void register(DynamicLibrary lib){
+	public void register(DynamicLibrary lib)
+	{
 		assert (lib !is null);
-		debug foreach(DynamicModule mod; lib.getModules){
+		debug foreach(DynamicModule mod; lib.getModules)
+		{
 			debugLog("[Linker.register]: {0}",mod.getName);
 		}
 		libraries ~= lib;
@@ -555,7 +582,8 @@ class Linker{
 		Params:
 			filename = the file name of the library to load
 	*/
-	public DynamicLibrary loadAndRegister(char[] filename,char[] attrStdVersion = ""){
+	public DynamicLibrary loadAndRegister(char[] filename, string attrStdVersion = "")
+	{
 		DynamicLibrary result = registry.load(filename,attrStdVersion);
 		register(result);
 		return result;
@@ -568,7 +596,8 @@ class Linker{
 		Params:
 			filename = the file name of the library to load
 	*/
-	public DynamicLibrary loadAndLink(char[] filename,char[] attrStdVersion = ""){
+	public DynamicLibrary loadAndLink(char[] filename, string attrStdVersion = "")
+	{
 		DynamicLibrary result = registry.load(filename,attrStdVersion);
 		link(result);
 		return result;
@@ -581,7 +610,8 @@ class Linker{
 		Params:
 			filename = the file name of the library to load
 	*/
-	public DynamicLibrary loadLinkAndRegister(char[] filename,char[] attrStdVersion = ""){
+	public DynamicLibrary loadLinkAndRegister(char[] filename, string attrStdVersion = "")
+	{
 		DynamicLibrary result = registry.load(filename,attrStdVersion);
 		link(result);
 		register(result);
@@ -591,8 +621,10 @@ class Linker{
 	/**
 		Returns true if the library provided is registered with this linker.
 	*/
-	public bool isRegistered(DynamicLibrary lib){
-		foreach(registeredLib; this.libraries){
+	public bool isRegistered(DynamicLibrary lib)
+	{
+		foreach(registeredLib; this.libraries)
+		{
 			if(registeredLib == lib) return true;
 		}
 		return false;

@@ -32,72 +32,80 @@ private import ddl.DDLReader;
 private import ddl.coff.COFF;
 
 // reader class
-class COFFReader: DDLReader{
-    public this(IBuffer buffer){
+class COFFReader: DDLReader
+{
+    public this(IBuffer buffer)
+    {
         super(buffer);
     }
 
     alias DDLReader.get get;
 
-    public void setPosition(uint position){
-   		super.seek(position,ISeekable.SeekAnchor.Begin);
+    public void setPosition(uint position)
+    {
+        super.seek(position,ISeekable.SeekAnchor.Begin);
     }
 
-    public COFFReader get(inout COFFHeader value){
-   		super.read(&value,COFFHeader.sizeof,0);
-   		return this;
+    public COFFReader get(inout COFFHeader value)
+    {
+        super.read(&value,COFFHeader.sizeof,0);
+        return this;
     }
 
-    public COFFReader get(inout COFFSectionHeader value){
+    public COFFReader get(inout COFFSectionHeader value)
+    {
         super.read(&value,COFFSectionHeader.sizeof,0);
         return this;
     }
 
-    public COFFReader get(inout COFFRelocationRecord[] value){
+    public COFFReader get(inout COFFRelocationRecord[] value)
+    {
         super.read(value.ptr,COFFRelocationRecord.sizeof*value.length,0);
         return this;
     }
 
-    public COFFReader get(inout COFFLineRecord[] value){
+    public COFFReader get(inout COFFLineRecord[] value)
+    {
         super.read(value.ptr,COFFLineRecord.sizeof*value.length,0);
         return this;
     }
-
-
-
 }
 
-class CodeViewReader: DDLReader{
-    public this(IBuffer buffer){
+class CodeViewReader: DDLReader
+{
+    public this(IBuffer buffer)
+    {
         super(buffer);
     }
 
     alias DDLReader.get get;
 
-    public void setPosition(uint position){
-   		super.seek(position,ISeekable.SeekAnchor.Begin);
+    public void setPosition(uint position)
+    {
+        super.seek(position,ISeekable.SeekAnchor.Begin);
     }
 
-    public CodeViewReader get(inout COFFHeader value){
-   		super.read(&value,COFFHeader.sizeof,0);
-   		return this;
+    public CodeViewReader get(inout COFFHeader value)
+    {
+        super.read(&value,COFFHeader.sizeof,0);
+        return this;
     }
 
-    public CodeViewReader get(inout COFFSectionHeader value){
+    public CodeViewReader get(inout COFFSectionHeader value)
+    {
         super.read(&value,COFFSectionHeader.sizeof,0);
         return this;
     }
 
-    public CodeViewReader get(inout COFFRelocationRecord[] value){
+    public CodeViewReader get(inout COFFRelocationRecord[] value)
+    {
         super.read(value.ptr,COFFRelocationRecord.sizeof*value.length,0);
         return this;
     }
 
-    public CodeViewReader get(inout COFFLineRecord[] value){
+    public CodeViewReader get(inout COFFLineRecord[] value)
+    {
         super.read(value.ptr,COFFLineRecord.sizeof*value.length,0);
         return this;
     }
-
-
-
 }

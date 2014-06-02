@@ -48,64 +48,78 @@ class COFFModule : DynamicModule
     ExportSymbol[char[]] 	exports;
     COFFObject 				binary;
 
-    this(FileBuffer file){
+    this(FileBuffer file)
+    {
         binary = new COFFObject();
         binary.load(file);
         syncronizeSymbols();
     }
 
-    public char[] getName(){
+    public override char[] getName()
+    {
         return this.moduleName;
     }
 
-    public char[][] getDependencies(){
+    public char[][] getDependencies()
+    {
         return cast(char[][])dependencies;
     }
 
-    public void resolveDependencies(ExportSymbol[] exports){
-        foreach(ExportSymbol sym; exports){
-            //if(sym.name in dependencies){
+    public void resolveDependencies(ExportSymbol[] exports)
+    {
+        foreach(ExportSymbol sym; exports)
+        {
+            //if(sym.name in dependencies)
+            {
                 debug printf("Resolving: %s = %0.8X\n",sym.name,sym.address);
                 binary.fixDependency(sym.name,sym.address);
-            //}
+            }
         }
 //!		binary.resolveFixups();
         syncronizeSymbols();
     }
 
-    public void resolveDependency(char[] name,void* address){
+    public void resolveDependency(char[] name,void* address)
+    {
         binary.fixDependency(name,address);
 //!		binary.resolveFixups();
         syncronizeSymbols();
     }
 
-    public ExportSymbol[] getExports(){
+    public ExportSymbol[] getExports()
+    {
         return exports.values;
     }
 
-    public ExportSymbol getExport(char[] name){
+    public ExportSymbol getExport(char[] name)
+    {
         if(name in exports)	return exports[name];
         else return ExportSymbol.NONE;
     }
 
-    public bool isResolved(){
+    public override bool isResolved()
+    {
 //!		return binary.isResolved();
         return true;
     }
 
-    protected void syncronizeSymbols(){
+    protected void syncronizeSymbols()
+    {
         this.dependencies = (char[][char[]]).init;
         this.moduleName = binary.getName();
 
         debug debugLog("binary: %s",binary.toString());
 
-        foreach(ExternalSymbol ext; binary.getExterns()){
-            if(!ext.isResolved){
+        foreach(ExternalSymbol ext; binary.getExterns())
+        {
+            if(!ext.isResolved)
+            {
 //!				dependencies ~= ext.name;
             }
         }
 
-        foreach(char[] name,PublicSymbol pub; binary.getPublics()){
+        foreach(char[] name,PublicSymbol pub; binary.getPublics())
+        {
             ExportSymbol exp;
             exp.name = pub.name;
             exp.address = pub.address;
@@ -113,7 +127,8 @@ class COFFModule : DynamicModule
         }
     }
 
-    public char[] toString(){
+    public char[] toString()
+    {
         return binary.toString();
     }
 
@@ -122,15 +137,16 @@ class COFFModule : DynamicModule
     {
         return null;
     }
-    public ExportSymbolPtr getSymbol(char[] name)
+    public override ExportSymbolPtr getSymbol(char[] name)
     {
         return null;
     }
     // DynamicModule override
-    public void resolveFixups()
+    public override void resolveFixups()
     {
     }
-    public ExportSymbol[] getSymbols()
+
+    public override ExportSymbol[] getSymbols()
     {
         return null;
     }

@@ -1,6 +1,6 @@
 /+
 	Copyright (c) 2005, 2006 J Duncan, Eric Anderton
-        
+
 	Permission is hereby granted, free of charge, to any person
 	obtaining a copy of this software and associated documentation
 	files (the "Software"), to deal in the Software without
@@ -32,6 +32,7 @@
 
 module ddl.coff.cv4;
 
+version( Windows ):
 import ddl.coff.COFF;
 
 import std.string;
@@ -48,10 +49,10 @@ const uint WIN32_IMAGE_SCN_MEM_EXECUTE = 0x20000000;	// changed from IMAGE_SCN_M
 /*
 enum : uint { IMAGE_SIZEOF_SHORT_NAME = 8 }
 
-align(1) struct IMAGE_SECTION_HEADER 
+align(1) struct IMAGE_SECTION_HEADER
 {
 	BYTE Name[IMAGE_SIZEOF_SHORT_NAME];
-	union 
+	union
 	{
 		DWORD PhysicalAddress;
 		DWORD VirtualSize;
@@ -130,7 +131,7 @@ BOOL GetSrcModuleInfo( LPSTR ptr, DWORD dwAddress, DWORD *pLineNumber, out char[
 
 	//*pFileName = 0;
 	*pLineNumber = 0;
-	pModule = ptr;        		
+	pModule = ptr;
 	// Number of source files in a module.
 	cFile = *cast(WORD*)ptr;
 	ptr += WORD.sizeof;        	// Total number of code segments in a module.
@@ -289,7 +290,7 @@ enum
 
 // 16:32 types
 	S_BPREL32		= 0x0200,	// BP
-	
+
 	S_LDATA32		= 0x0201,	// local data
 	S_GDATA32		= 0x0202,	// global data
 	S_PUB32			= 0x0203,	// public symbol
@@ -1159,5 +1160,3 @@ bit fieldAttribIsVirtual( uint attrib )
 {
 	return ((attrib >> FIELD_ATTRIBUTE.PROP_SHIFT) & FIELD_ATTRIBUTE.PROP_MASK) == 1;
 }
-
-
