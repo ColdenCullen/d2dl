@@ -24,29 +24,29 @@
 +/
 module ddl.omf.OMFLoader;
 
-private import ddl.ExportSymbol;
-private import ddl.DynamicLibrary;
-private import ddl.DynamicModule;
-private import ddl.DynamicLibraryLoader;
-private import ddl.LoaderRegistry;
-private import ddl.FileBuffer;
+import ddl.ExportSymbol;
+import ddl.DynamicLibrary;
+import ddl.DynamicModule;
+import ddl.DynamicLibraryLoader;
+import ddl.LoaderRegistry;
+import ddl.FileBuffer;
 
-private import ddl.omf.OMFLibrary;
-private import ddl.omf.OMFModule;
+import ddl.omf.OMFLibrary;
+import ddl.omf.OMFModule;
 
-debug private import ddl.Utils;
+debug import ddl.Utils;
 
 class OMFLibLoader : DynamicLibraryLoader
 {
-    static char[] typeName = "OMFLIB";
-    static char[] fileExtension = "lib";
+    static string typeName = "OMFLIB";
+    static string fileExtension = "lib";
 
-    public override char[] getLibraryType()
+    public override string getLibraryType()
     {
         return typeName;
     }
 
-    public char[] getFileExtension()
+    public string getFileExtension()
     {
         return fileExtension;
     }
@@ -66,15 +66,15 @@ class OMFLibLoader : DynamicLibraryLoader
 
 class OMFObjLoader : DynamicLibraryLoader
 {
-    static char[] typeName = "OMF";
-    static char[] fileExtension = "obj";
+    static string typeName = "OMF";
+    static string fileExtension = "obj";
 
-    public override char[] getLibraryType()
+    public override string getLibraryType()
     {
         return typeName;
     }
 
-    public char[] getFileExtension()
+    public string getFileExtension()
     {
         return fileExtension;
     }

@@ -45,7 +45,7 @@ import ddl.ar.ArchiveLibrary;
  */
 class ArchiveLoader : DynamicLibraryLoader
 {
-    public override char[] getLibraryType()
+    public override string getLibraryType()
     {
         return "AR";
     }

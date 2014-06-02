@@ -37,32 +37,32 @@ import std.format;
 
 class ELFPrinter
 {
-    private static char[][] sectionTypes = ["SHT_NULL", "SHT_PROGBITS", "SHT_SYMTAB",
+    private static string[] sectionTypes = ["SHT_NULL", "SHT_PROGBITS", "SHT_SYMTAB",
                          "SHT_STRTAB", "SHT_RELA", "SHT_HASH",
                          "SHT_DYNAMIC", "SHT_NOTE", "SHT_NOBITS",
                          "SHT_REL", "SHT_SHLIB", "SHT_DYNSYM"];
 
-    private static char[][] segmentTypes = ["PT_NULL", "PT_LOAD", "PT_DYNAMIC",
+    private static string[] segmentTypes = ["PT_NULL", "PT_LOAD", "PT_DYNAMIC",
                          "PT_INTERP", "PT_NOTE", "PT_SHLIB",
                          "PT_PHDR"];
 
-    private static char[][] objectTypes = ["ET_NONE", "ET_REL (Relocatable)",
+    private static string[] objectTypes = ["ET_NONE", "ET_REL (Relocatable)",
                         "ET_EXEC (Executable)", "ET_DYN (Dynamic)",
                         "ET_CORE"];
 
-    private static char[][] classStrings = ["ELFCLASSNONE", "ELFCLASS32", "ELFCLASS64"];
+    private static string[] classStrings = ["ELFCLASSNONE", "ELFCLASS32", "ELFCLASS64"];
 
-    private static char[][] dataStrings = ["ELFDATANONE (Invalid)",
+    private static string[] dataStrings = ["ELFDATANONE (Invalid)",
                         "2's complement, little endian",
                         "ELFDATA2MSB"];
 
-    private static char[][] versionStrings = ["0", "1 (current)"];
+    private static string[] versionStrings = ["0", "1 (current)"];
 
-    private static char[][] machineStrings = ["EM_NONE", "EM_M32", "EM_SPARC",
+    private static string[] machineStrings = ["EM_NONE", "EM_M32", "EM_SPARC",
                            "EM_386 (Intel 80386)", "EM_68K", "EM_88K",
                            "EM_860", "EM_MIPS"];
 
-    private char[] sectionTypeStr(uint n) {
+    private string sectionTypeStr(uint n) {
         if (n <= SHT_DYNSYM) {
             return sectionTypes[n];
         }
@@ -75,7 +75,7 @@ class ELFPrinter
         return "";
     }
 
-    private char[] segmentTypeStr(uint n) {
+    private string segmentTypeStr(uint n) {
         if (n <= PT_SHLIB) {
             return segmentTypes[n];
         }
@@ -85,7 +85,7 @@ class ELFPrinter
         return "";
     }
 
-    private char[] objectTypeStr(uint n) {
+    private string objectTypeStr(uint n) {
         if (n <= ET_CORE) {
             return objectTypes[n];
         }
@@ -100,10 +100,10 @@ class ELFPrinter
 
     }
 
-    public char[] printElfHeader(Elf32_Ehdr hdr)
+    public string printElfHeader(Elf32_Ehdr hdr)
     {
         ubyte[] m = hdr.e_ident;
-        char[] result;
+        string result;
 
         result.formattedWrite("  Magic:\t%02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X\n", m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8], m[9], m[10], m[11], m[12], m[13], m[14], m[15]);
         result.formattedWrite("  Class:\t\t\t\t%s\n", classStrings[m[EI_CLASS]]);
@@ -126,9 +126,9 @@ class ELFPrinter
         return result;
     }
 
-    public char[] printProgramHeader(uint n, Elf32_Phdr hdr)
+    public string printProgramHeader(uint n, Elf32_Phdr hdr)
     {
-        char[] result;
+        string result;
 
         result.formattedWrite("Program header %d\n", n);
         result.formattedWrite("  Type:\t\t\t\t%s\n", segmentTypeStr(hdr.p_type));
@@ -143,16 +143,16 @@ class ELFPrinter
         return result;
     }
 
-    public char[] printProgramHeaders(Elf32_Phdr[] headers)
+    public string printProgramHeaders(Elf32_Phdr[] headers)
     {
-        char[] result = sprint("Program Headers: %d\n",headers.length);
+        string result = sprint("Program Headers: %d\n",headers.length);
         foreach(idx,hdr; headers)  result ~= printProgramHeader(idx,hdr);
         return result;
     }
 
-    public char[] printSectionHeader(uint n, char[] name, Elf32_Shdr hdr)
+    public string printSectionHeader(uint n, string name, Elf32_Shdr hdr)
     {
-        char[] result;
+        string result;
 
         result.formattedWrite("Section header %d: %s\n", n, name);
         result.formattedWrite("  Type:\t\t\t\t%s\n", sectionTypeStr(hdr.sh_type));
@@ -168,17 +168,17 @@ class ELFPrinter
         return result;
     }
 
-    public char[] printSectionHeaders(Elf32_Shdr[] headers)
+    public string printSectionHeaders(Elf32_Shdr[] headers)
     {
-        char[] result = sprint("Headers: %d\n",headers.length);
-        char[] name = ""; //TODO
+        string result = sprint("Headers: %d\n",headers.length);
+        string name = ""; //TODO
         foreach(idx,hdr; headers)  result ~= printSectionHeader(idx,name,hdr);
         return result;
     }
 
-    public char[] printSymbol(uint n, char[] name, Elf32_Sym sym)
+    public string printSymbol(uint n, string name, Elf32_Sym sym)
     {
-        char[] result;
+        string result;
 
         result.formattedWrite("Symbol %d: %s\n", n, name);
         result.formattedWrite("  Value:\t\t\t0x%x\n", sym.st_value);
@@ -190,9 +190,9 @@ class ELFPrinter
         return result;
     }
 
-    public char[] printSymbols(Elf32_Sym[char[]] symbols)
+    public string printSymbols(Elf32_Sym[string] symbols)
     {
-        char[] result = sprint("Symbols: %d\n",symbols.length);
+        string result = sprint("Symbols: %d\n",symbols.length);
         uint idx = 1;
         foreach(name,sym; symbols)
         {

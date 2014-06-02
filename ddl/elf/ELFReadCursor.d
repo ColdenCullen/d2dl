@@ -31,7 +31,7 @@ module ddl.elf.ELFReadCursor;
 
 import ddl.Utils;
 
-class ELFReadCursor : ReadCursor
+/*class ELFReadCursor : ReadCursor
 {
     public this(ubyte[] data)
     {
@@ -50,4 +50,4 @@ class ELFReadCursor : ReadCursor
         }
         return 0;
     }
-}
+}*/

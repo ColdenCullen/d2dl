@@ -35,15 +35,15 @@ import ddl.ddl.DDLLibrary;
 
 class DDLLoader : DynamicLibraryLoader
 {
-	public static char[] typeName = "DDL";
-	public static char[] fileExtension = "ddl";
+	public static string typeName = "DDL";
+	public static string fileExtension = "ddl";
 
-	public override char[] getLibraryType()
+	public override string getLibraryType()
 	{
 		return typeName;
 	}
 
-	public char[] getFileExtension()
+	public string getFileExtension()
 	{
 		return fileExtension;
 	}

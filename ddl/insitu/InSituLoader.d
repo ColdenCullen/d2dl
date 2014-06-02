@@ -25,36 +25,36 @@
 
 module ddl.insitu.InSituLoader;
 
-private import ddl.ExportSymbol;
-private import ddl.DynamicLibrary;
-private import ddl.DynamicModule;
-private import ddl.DynamicLibraryLoader;
-private import ddl.LoaderRegistry;
-private import ddl.FileBuffer;
+import ddl.ExportSymbol;
+import ddl.DynamicLibrary;
+import ddl.DynamicModule;
+import ddl.DynamicLibraryLoader;
+import ddl.LoaderRegistry;
+import ddl.FileBuffer;
 
-private import ddl.insitu.InSituMapBinary;
-//private import ddl.insitu.InSituLibBinary;
-private import ddl.insitu.InSituLibrary;
+import ddl.insitu.InSituMapBinary;
+//import ddl.insitu.InSituLibBinary;
+import ddl.insitu.InSituLibrary;
 
 /*
 class InSituLibLoader : DynamicLibraryLoader
 {
-    static char[] typeName = "SITU";
-    static char[] fileExtension = "situ";
+    static string typeName = "SITU";
+    static string fileExtension = "situ";
 
-    public char[] getLibraryType()
+    public string getLibraryType()
 	{
         return(typeName);
     }
 
-    public char[] getFileExtension()
+    public string getFileExtension()
 	{
         return(fileExtension);
     }
 
     public bool canLoadLibrary(FileBuffer file)
 	{
-        return cast(char[])(file.data[0..8]) == "DDLSITU!";
+        return cast(string)(file.data[0..8]) == "DDLSITU!";
     }
 
     public DynamicLibrary load(LoaderRegistry registry,FileBuffer file)
@@ -67,22 +67,22 @@ class InSituLibLoader : DynamicLibraryLoader
 
 class InSituMapLoader : DynamicLibraryLoader
 {
-    static char[] typeName = "SITUMAP";
-    static char[] fileExtension = "map";
+    static string typeName = "SITUMAP";
+    static string fileExtension = "map";
 
-    public override char[] getLibraryType()
+    public override string getLibraryType()
 	{
         return typeName;
     }
 
-    public char[] getFileExtension()
+    public string getFileExtension()
 	{
         return fileExtension;
     }
 
     public override bool canLoadLibrary(FileBuffer file)
 	{
-        return cast(char[])(file.data[0..8]) == "\r\n Start";
+        return cast(string)(file.data[0..8]) == "\r\n Start";
     }
 
     public override DynamicLibrary load(LoaderRegistry registry,FileBuffer file)

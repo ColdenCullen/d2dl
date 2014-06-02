@@ -29,16 +29,15 @@
 */
 module ddl.elf.ELFObjLoader;
 
-private import ddl.DynamicLibrary;
-private import ddl.DynamicLibraryLoader;
-private import ddl.LoaderRegistry;
-private import ddl.Utils;
-private import ddl.FileBuffer;
-private import ddl.Utils;
+import ddl.DynamicLibrary;
+import ddl.DynamicLibraryLoader;
+import ddl.LoaderRegistry;
+import ddl.Utils;
+import ddl.FileBuffer;
+import ddl.Utils;
 
-private import ddl.elf.ELFLibrary;
-private import ddl.elf.ELFModule;
-
+import ddl.elf.ELFLibrary;
+import ddl.elf.ELFModule;
 
 /**
     An implementation of the abstract class DynamicLibraryLoader for
@@ -51,9 +50,9 @@ class ELFObjLoader : DynamicLibraryLoader
         Returns the typename supported by this loader. Returns the
         static string "ELF".
     */
-    public override char[] getLibraryType()
+    public override string getLibraryType()
     {
-        return("ELF");
+        return "ELF";
     }
 
     /**
@@ -64,7 +63,7 @@ class ELFObjLoader : DynamicLibraryLoader
     public override bool canLoadLibrary(FileBuffer file)
     {
         debug debugLog("Testing for ELF compliance");
-        debug debugLog("from file: ", cast(char[])file.get(4,false));
+        debug debugLog("from file: ", cast(string)file.get(4,false));
         debug debugLog("magic header: \0x7ELF");
     	if(file.data[0..4] == cast(ubyte[])"\x7fELF"c)
         {
