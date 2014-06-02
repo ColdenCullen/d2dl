@@ -1,6 +1,6 @@
 /+
 	Copyright (c) 2005-2007 Eric Anderton
-	        
+
 	Permission is hereby granted, free of charge, to any person
 	obtaining a copy of this software and associated documentation
 	files (the "Software"), to deal in the Software without
@@ -25,31 +25,36 @@
 
 module ddl.ddl.DDLLoader;
 
-private import ddl.DynamicLibrary;
-private import ddl.DynamicModule;
-private import ddl.DynamicLibraryLoader;
-private import ddl.LoaderRegistry;
-private import ddl.FileBuffer;
+import ddl.DynamicLibrary;
+import ddl.DynamicModule;
+import ddl.DynamicLibraryLoader;
+import ddl.LoaderRegistry;
+import ddl.FileBuffer;
 
-private import ddl.ddl.DDLLibrary;
+import ddl.ddl.DDLLibrary;
 
-class DDLLoader : DynamicLibraryLoader{
+class DDLLoader : DynamicLibraryLoader
+{
 	public static char[] typeName = "DDL";
 	public static char[] fileExtension = "ddl";
-	
-	public char[] getLibraryType(){
-		return(typeName);
+
+	public override char[] getLibraryType()
+	{
+		return typeName;
 	}
-	
-	public char[] getFileExtension(){
-		return(fileExtension);
-	}	
-		
-	public bool canLoadLibrary(FileBuffer file){
+
+	public char[] getFileExtension()
+	{
+		return fileExtension;
+	}
+
+	public override bool canLoadLibrary(FileBuffer file)
+	{
 		return file.data[0..4] == cast(ubyte[])"DDL!"c;
 	}
-	
-	public DynamicLibrary load(LoaderRegistry registry,FileBuffer file){
+
+	public override DynamicLibrary load(LoaderRegistry registry,FileBuffer file)
+	{
 		return new DDLLibrary(registry,file);
 	}
 }

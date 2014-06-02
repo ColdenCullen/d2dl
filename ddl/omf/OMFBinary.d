@@ -349,7 +349,8 @@ void parse(inout GRPDEF[] groups,OMFReader reader){
     the LOCATION of each address value to be fixed up, the TARGET address to which the
     fixup refers, and the FRAME relative to which the address computation is performed.
 **/
-struct FIXUPP{
+struct FIXUPP
+{
     bool isSegmentRelative; // is this a segment relative fixup (true=add address of segment, false=use actual address)
     uint destSegmentIndex;
     uint destOffset;
@@ -362,7 +363,7 @@ struct FIXUPP{
     }
 }
 
-alias ExpContainer!(FIXUPP) FIXUPPSet;
+alias FIXUPPSet = ExpContainer!(FIXUPP);
 
 /**
     Temporary record used to store FIXUPP TARGET and FRAME information

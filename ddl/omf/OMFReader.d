@@ -43,7 +43,8 @@ alias LString = char[];
 
     The class is abstract and is implemented directly via WordOMFREader and DWordOMFReader.
 */
-public class OMFReader : DDLReader{
+public class OMFReader : DDLReader
+{
     ubyte type;
 
     protected this(void[] buffer,ubyte type){
@@ -59,7 +60,8 @@ public class OMFReader : DDLReader{
     //NOTE: workaround to help D resolve quasi-covaraint overrides
     public alias DDLReader.get get;
 
-    OMFReader get(inout OMFIndex x){
+    override OMFReader get(inout OMFIndex x)
+    {
         ubyte dataByte;
 
         get(dataByte);
@@ -75,7 +77,8 @@ public class OMFReader : DDLReader{
         return this;
     }
 
-    OMFReader get(inout LString x){
+    OMFReader get(inout LString x)
+    {
         // read the length
         ushort strLength;
         ubyte dataByte;
@@ -100,16 +103,16 @@ public class OMFReader : DDLReader{
         return this;
     }
 
-    abstract OMFReader get(inout VWord x);
-    abstract OMFReader get(inout VByte x);
+    abstract override OMFReader get(inout VWord x);
+    //abstract override OMFReader get(inout VByte x);
 }
 
 /**
     Subclass of OMFReader that provides the getVWord and getVByte methods as appropriate
     for word-oriented (even) OMF records.
 */
-class WordOMFReader : OMFReader{
-
+class WordOMFReader : OMFReader
+{
     //NOTE: workaround to help D resolve quasi-covaraint overrides
     public alias OMFReader.get get;
 

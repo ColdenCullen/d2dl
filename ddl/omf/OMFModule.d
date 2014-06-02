@@ -41,7 +41,8 @@ version(Windows){
     private import ddl.omf.DLLProvider;
 }
 
-class OMFModule : DynamicModule{
+class OMFModule : DynamicModule
+{
     struct SegmentImage{
         void[] data;
     }
@@ -56,8 +57,8 @@ class OMFModule : DynamicModule{
         void* destSegmentAddress;
     }
 
-    alias ExportSymbol* ExportSymbolPtr;
-    alias SegmentImage* SegmentImagePtr;
+    alias ExportSymbolPtr = ExportSymbol*;
+    alias SegmentImagePtr = SegmentImage*;
 
     debug OMFBinary binary;
     Fixup[] fixups;
@@ -86,19 +87,24 @@ class OMFModule : DynamicModule{
         loadBinary(reader);
     }
 
-    public char[] getName(){
+    public override char[] getName()
+    {
         return moduleName;
     }
 
-    public ExportSymbol[] getSymbols(){
+    public override ExportSymbol[] getSymbols()
+    {
         return symbols;
     }
 
-    public ExportSymbol* getSymbol(char[] name){
+    public override ExportSymbol* getSymbol(char[] name)
+    {
         /+if(name in symbolXref) return symbolXref[name];
         else return &ExportSymbol.NONE;+/
-        foreach (ref sym; symbols) {
-            if (sym.name == name) {
+        foreach (ref sym; symbols)
+        {
+            if (sym.name == name)
+            {
                 return &sym;
             }
         }
@@ -106,21 +112,26 @@ class OMFModule : DynamicModule{
         return &ExportSymbol.NONE;
     }
 
-    protected bool containsAddress(void* addr){
-        foreach(seg; this.segmentImages){
+    protected bool containsAddress(void* addr)
+    {
+        foreach(seg; this.segmentImages)
+        {
             debug debugLog("checking addr: [%0.X] [%0.X] [%0.X]",seg.data.ptr,addr,(seg.data.ptr + seg.data.length));
-            if(addr >= seg.data.ptr && addr <= (seg.data.ptr + seg.data.length)){
+            if(addr >= seg.data.ptr && addr <= (seg.data.ptr + seg.data.length))
+            {
                 return true;
             }
         }
         return false;
     }
 
-    public void resolveFixups(){
+    public override void resolveFixups()
+    {
         Fixup[] remainingFixups;
         //ExpContainer!(Fixup) remainingFixups;
 
-        foreach(idx,fix; fixups) with(fix){
+        foreach(idx,fix; fixups) with(fix)
+        {
             /+if (targetSymbol) {
                 printf("targetSymbol: %.*s"\n, targetSymbol.name);
             }+/
@@ -129,22 +140,27 @@ class OMFModule : DynamicModule{
             uint destAddress;
 
             // get the dest address
-            if(destSymbol){
-                if(destSymbol.isExternal){
+            if(destSymbol)
+            {
+                if(destSymbol.isExternal)
+                {
                     // discard this fixup - it references a non-local symbol
                     debug debugLog("Discarded Fixup dest {0}:{1} [{2:X}] rel:{3}",destSymbol.name,destSymbol.getTypeName(),destAddress,cast(uint)isSegmentRelative);
                     continue;
                 }
-                else{
+                else
+                {
                     debug debugLog("Fixup dest symbol: {0} [{1:X}] {2}",destSymbol.name,destSymbol.address,destSymbolOffset);
                     destAddress = cast(uint)destSymbol.address + destSymbolOffset;
                 }
             }
-            else{
+            else
+            {
                 destAddress = cast(uint)destSegmentAddress;
             }
 
-            if(!containsAddress(cast(void*)destAddress)){
+            if(!containsAddress(cast(void*)destAddress))
+            {
                 debug debugLog("Module does not contain the destination address for fixup. [{0:X}]",destAddress);
                 debug debugLog("dump: {0}",this.toString());
                 assert(false);
@@ -152,8 +168,10 @@ class OMFModule : DynamicModule{
             //assert(containsAddress(cast(void*)destAddress),"Module does not contain the destination address for fixup.");
 
             // get the fixup value
-            if(isExternStyleFixup){
-                if(targetSymbol.type != SymbolType.Strong){
+            if(isExternStyleFixup)
+            {
+                if(targetSymbol.type != SymbolType.Strong)
+                {
                     // fixup cannot be resolved at this time, so save it for later
                     remainingFixups ~= fix;
                     //printf("fixup cannot be resolved at this time, so save it for later"\n);
@@ -161,7 +179,8 @@ class OMFModule : DynamicModule{
                 }
                 fixupValue = cast(uint)(targetSymbol.address);
             }
-            else{
+            else
+            {
                 fixupValue = cast(uint)(segmentImages[targetSegmentIndex].data.ptr);
             }
 
@@ -178,16 +197,19 @@ class OMFModule : DynamicModule{
             }
 
             // apply the fixup value
-            if(fixupValue == 0){
+            if(fixupValue == 0)
+            {
                 //HACK: there exists a very small class of symbols that point to zero at all times
                 //NOTE: namely, this includes __except_list and __nullext, which point to the start
                 // of their respective segments
                 *cast(uint*)destAddress = fixupValue;
             }
-            else if(!isSegmentRelative){ // relative fixup, offset by width of field
+            else if(!isSegmentRelative)
+            { // relative fixup, offset by width of field
                 *cast(uint*)destAddress = fixupValue - destAddress - 4;
             }
-            else{ // segment relative
+            else
+            { // segment relative
                 *cast(uint*)destAddress += fixupValue;
             }
 
@@ -196,7 +218,8 @@ class OMFModule : DynamicModule{
         this.fixups = remainingFixups;
     }
 
-    public bool isResolved(){
+    public override bool isResolved()
+    {
         if(resolved) return true;
 
         if(fixups.length > 0) return false;
@@ -208,10 +231,13 @@ class OMFModule : DynamicModule{
         return true;
     }
 
-    protected void loadBinary(DDLReader reader){
+    protected void loadBinary(DDLReader reader)
+    {
         ExportSymbolPtr[char[]] symbolXref;
 
-        debug{} else{
+        debug { }
+        else
+        {
             OMFBinary binary;
         }
         binary.parse(reader);
