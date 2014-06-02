@@ -1,6 +1,6 @@
 /+
 	Copyright (c) 2005-2007 J Duncan, Eric Anderton
-        
+
 	Permission is hereby granted, free of charge, to any person
 	obtaining a copy of this software and associated documentation
 	files (the "Software"), to deal in the Software without
@@ -29,6 +29,8 @@
 	Copyright: 2005, 2006 J Duncan, Eric Anderton
 */
 module ddl.coff.cursor;
+
+version( Windows ):
 
 import ddl.coff.COFFReader;
 
@@ -163,7 +165,7 @@ struct DataCursor
 		char ch = data[position];
 		return ch >= '0' && ch <= '9';
 	}
-	
+
 	public char* ptr()
 	{
 		return data.ptr + position;
@@ -186,4 +188,3 @@ struct DataCursor
 	}
 
 }
-

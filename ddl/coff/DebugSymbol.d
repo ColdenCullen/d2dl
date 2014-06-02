@@ -24,6 +24,8 @@
 +/
 module ddl.coff.DebugSymbol;
 
+version( Windows ):
+
 private import ddl.coff.cv4;
 private import ddl.coff.CodeView;
 

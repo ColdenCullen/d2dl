@@ -32,6 +32,8 @@
 
 module ddl.coff.COFFWrite;
 
+version( Windows ):
+
 private import ddl.Utils;
 private import ddl.coff.COFF;
 private import ddl.coff.COFFBinary;

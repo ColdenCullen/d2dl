@@ -32,6 +32,8 @@
 
 module ddl.coff.COFFImage;
 
+version( Windows ):
+
 import ddl.ExportSymbol;
 import ddl.Utils;
 

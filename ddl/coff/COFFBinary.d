@@ -32,6 +32,8 @@
 
 module ddl.coff.COFFBinary;
 
+version( Windows ):
+
 import ddl.coff.COFF;
 import ddl.coff.COFFObject;
 import ddl.coff.COFFWrite;
@@ -72,7 +74,7 @@ public:
 // state
 // 	debug static bit verbose = true;	// verbose output
 // 	else  static bit verbose = false;	// silent
-    static bit verbose = false;
+    static bool verbose = false;
 
     COFF_TYPE coffType 	= COFF_TYPE.UNKNOWN;
 

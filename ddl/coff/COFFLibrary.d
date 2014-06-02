@@ -32,6 +32,8 @@
 
 module ddl.coff.COFFLibrary;
 
+version( Windows ):
+
 import ddl.coff.COFFModule;
 
 import ddl.ExportSymbol;

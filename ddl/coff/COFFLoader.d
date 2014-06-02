@@ -1,6 +1,6 @@
 /+
 	Copyright (c) 2005-2007  J Duncan, Eric Anderton
-        
+
 	Permission is hereby granted, free of charge, to any person
 	obtaining a copy of this software and associated documentation
 	files (the "Software"), to deal in the Software without
@@ -23,13 +23,15 @@
 	OTHER DEALINGS IN THE SOFTWARE.
 +/
 /**
-	
+
 	Authors: J Duncan, Eric Anderton
 	License: BSD Derivative (see source for details)
 	Copyright: 2005, 2006 J Duncan, Eric Anderton
 */
 
 module ddl.coff.COFFLoader;
+
+version( Windows ):
 
 import ddl.coff.COFFObject;
 import ddl.coff.COFFLibrary;
@@ -43,17 +45,17 @@ private import ddl.Utils;
 
 class COFFObjLoader : DynamicLibraryLoader{
 	public static char[] typeName = "COFFOBJ";
-	
+
 	public char[] getLibraryType(){
 		return(typeName);
 	}
-		
+
 	public bool canLoadLibrary(FileBuffer file){
 		ubyte[] test = cast(ubyte[])file.get(2,false);
 		return test[0] == 0x80;
 //		return test[0] == 0x4c && test[1] == 0x01;
 	}
-	
+
 	public DynamicLibrary load(LoaderRegistry registry,FileBuffer file){
 		COFFLibrary lib = new COFFLibrary(file.getPath.toString());
 		COFFModule mod = new COFFModule(file);
@@ -65,20 +67,20 @@ class COFFObjLoader : DynamicLibraryLoader{
 class COFFDLLLoader : DynamicLibraryLoader{
 	public static char[] typeName = "COFFDLL";
 	public static char[] fileExtension = "dll";
-	
+
 	public char[] getLibraryType(){
 		return(typeName);
 	}
-	
+
 	public char[] getFileExtension(){
 		return(fileExtension);
-	}	
-		
+	}
+
 	public bool canLoadLibrary(FileBuffer file){
 		ubyte[] test = cast(ubyte[])file.get(2,false);
 		return test[0] == 'M' && test[1] == 'Z';
 	}
-	
+
 	public DynamicLibrary load(LoaderRegistry registry,FileBuffer file){
 
 		throw new Exception("COFF/PE DLL files are not supported");
@@ -91,20 +93,20 @@ class COFFDLLLoader : DynamicLibraryLoader{
 class COFFExeLoader : DynamicLibraryLoader{
 	public static char[] typeName = "COFFEXE";
 	public static char[] fileExtension = "exe";
-	
+
 	public char[] getLibraryType(){
 		return(typeName);
 	}
-	
+
 	public char[] getFileExtension(){
 		return(fileExtension);
-	}	
-		
+	}
+
 	public bool canLoadLibrary(FileBuffer file){
 		ubyte[] test = cast(ubyte[])file.get(2,false);
 		return test[0] == 'M' && test[1] == 'Z';
 	}
-	
+
 	public DynamicLibrary load(LoaderRegistry registry,FileBuffer file){
 
 		throw new Exception("COFF/PE files are not supported");
@@ -112,4 +114,3 @@ class COFFExeLoader : DynamicLibraryLoader{
 		return null;
 	}
 }
-

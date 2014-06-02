@@ -31,6 +31,8 @@
 */
 module ddl.coff.COFFObject;
 
+version( Windows ):
+
 import ddl.ExportSymbol;
 import ddl.FileBuffer;
 import ddl.Utils;

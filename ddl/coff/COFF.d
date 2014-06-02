@@ -32,6 +32,8 @@
 
 module ddl.coff.COFF;
 
+version( Windows ):
+
 private import std.string;
 private import std.stdio;
 private import std.stream;

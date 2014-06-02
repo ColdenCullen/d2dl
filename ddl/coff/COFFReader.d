@@ -28,13 +28,17 @@
     Copyright: 2005-2006 Lars Ivar Igesund
 */
 module ddl.coff.COFFReader;
-private import ddl.DDLReader;
-private import ddl.coff.COFF;
+
+version( Windows ):
+
+import ddl.DDLReader;
+import ddl.FileBuffer;
+import ddl.coff.COFF;
 
 // reader class
 class COFFReader: DDLReader
 {
-    public this(IBuffer buffer)
+    public this(FileBuffer buffer)
     {
         super(buffer);
     }
@@ -73,7 +77,7 @@ class COFFReader: DDLReader
 
 class CodeViewReader: DDLReader
 {
-    public this(IBuffer buffer)
+    public this(FileBuffer buffer)
     {
         super(buffer);
     }

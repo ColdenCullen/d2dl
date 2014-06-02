@@ -33,6 +33,7 @@
 module ddl.coff.cv4;
 
 version( Windows ):
+
 import ddl.coff.COFF;
 
 import std.string;
