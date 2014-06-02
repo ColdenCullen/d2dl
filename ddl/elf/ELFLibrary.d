@@ -29,64 +29,74 @@
 */
 module ddl.elf.ELFLibrary;
 
-private import ddl.DynamicLibrary;
-private import ddl.DynamicModule;
-private import ddl.ExportSymbol;
-private import ddl.Attributes;
-private import ddl.Utils;
-private import ddl.FileBuffer;
+import ddl.DynamicLibrary;
+import ddl.DynamicModule;
+import ddl.ExportSymbol;
+import ddl.Attributes;
+import ddl.Utils;
+import ddl.FileBuffer;
 
-private import ddl.elf.ELFHeaders;
-private import ddl.elf.ELFModule;
-private import ddl.elf.ELFPrinter;
+import ddl.elf.ELFHeaders;
+import ddl.elf.ELFModule;
+import ddl.elf.ELFPrinter;
 
 /**
     An implementation of the abstract class DynamicLibrary for use
     with libraries of ELF (Executable and Linkable Format) object
     files.
 */
-class ELFLibrary : DynamicLibrary{
+class ELFLibrary : DynamicLibrary
+{
     DynamicModule[] modules;
     DynamicModule[char[]] crossReference; // modules by symbol name
     ExportSymbolPtr[char[]] dictionary; // symbols by symbol name
     Attributes attributes;
 
-    public this(){
+    public this()
+    {
         attributes["elf.filename"] = "<unknown>";
     }
 
-    public this(FileBuffer file){
+    public this(FileBuffer file)
+    {
         attributes["elf.filename"] = file.getPath.toString();
         load(file);
     }
 
-    public char[] getType(){
+    public override char[] getType()
+    {
         return "ELFLIB";
     }
 
-    public Attributes getAttributes(){
+    public override Attributes getAttributes()
+    {
         return attributes;
     }
 
-    package void setAttributes(Attributes other){
+    package void setAttributes(Attributes other)
+    {
         other.copyInto(this.attributes);
     }
 
-    package void setAttribute(char[] key,char[] value){
+    package void setAttribute(char[] key,char[] value)
+    {
         this.attributes[key] = value;
     }
 
-    public ExportSymbolPtr getSymbol(char[] name){
+    public override ExportSymbolPtr getSymbol(char[] name)
+    {
         ExportSymbolPtr* sym = name in dictionary;
         if(sym) return *sym;
         else return &ExportSymbol.NONE;
     }
 
-    public DynamicModule[] getModules(){
+    public override DynamicModule[] getModules()
+    {
         return this.modules;
     }
 
-    public DynamicModule getModuleForSymbol(char[] name){
+    public override DynamicModule getModuleForSymbol(char[] name)
+    {
         debug debugLog("[ELFLIB] looking for " ~ name);
         DynamicModule* mod = name in crossReference;
         debug debugLog("[ELFLIB] Result: %0.8X",mod);
@@ -94,19 +104,25 @@ class ELFLibrary : DynamicLibrary{
         return null;
     }
 
-    public ubyte[] getResource(char[] name){
+    public override ubyte[] getResource(char[] name)
+    {
         return (ubyte[]).init;
     }
 
-    package void addModule(ELFModule mod){
+    package void addModule(ELFModule mod)
+    {
         this.modules ~= mod;
         auto symbols = mod.getSymbols();
-        for(uint i=0; i<symbols.length; i++){
+        for(uint i=0; i<symbols.length; i++)
+        {
             ExportSymbolPtr exp = &(symbols[i]);
-            if(exp.name in crossReference){
-                switch(exp.type){
+            if(exp.name in crossReference)
+            {
+                switch(exp.type)
+                {
                 case SymbolType.Weak: // replace extern only
-                    if(dictionary[exp.name].type == SymbolType.Unresolved){
+                    if(dictionary[exp.name].type == SymbolType.Unresolved)
+                    {
                         crossReference[exp.name] = mod;
                         dictionary[exp.name] = exp;
                     }
@@ -126,14 +142,17 @@ class ELFLibrary : DynamicLibrary{
         }
     }
 
-    protected void load(FileBuffer data){
+    protected void load(FileBuffer data)
+    {
         //TODO
     }
 
-    public char[] toString(){
+    public char[] toString()
+    {
         char[] result;
 
-        foreach(mod; modules){
+        foreach(mod; modules)
+        {
             result ~= mod.toString();
         }
         return result;

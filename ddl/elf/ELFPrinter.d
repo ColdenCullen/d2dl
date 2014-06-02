@@ -29,166 +29,176 @@
 */
 module ddl.elf.ELFPrinter;
 
-private import ddl.elf.ELFHeaders;
-private import ddl.Attributes;
-private import ddl.Utils;
+import ddl.elf.ELFHeaders;
+import ddl.Attributes;
+import ddl.Utils;
 
-class ELFPrinter{
-	private ExtSprintClass sprint;
-	
-	private static char[][] sectionTypes = ["SHT_NULL", "SHT_PROGBITS", "SHT_SYMTAB",
-	                     "SHT_STRTAB", "SHT_RELA", "SHT_HASH",
-	                     "SHT_DYNAMIC", "SHT_NOTE", "SHT_NOBITS",
-	                     "SHT_REL", "SHT_SHLIB", "SHT_DYNSYM"];
-	
-	private static char[][] segmentTypes = ["PT_NULL", "PT_LOAD", "PT_DYNAMIC",
-	                     "PT_INTERP", "PT_NOTE", "PT_SHLIB",
-	                     "PT_PHDR"];
-	
-	private static char[][] objectTypes = ["ET_NONE", "ET_REL (Relocatable)", 
-	                    "ET_EXEC (Executable)", "ET_DYN (Dynamic)",
-	                    "ET_CORE"];
-	
-	private static char[][] classStrings = ["ELFCLASSNONE", "ELFCLASS32", "ELFCLASS64"];
-	
-	private static char[][] dataStrings = ["ELFDATANONE (Invalid)", 
-	                    "2's complement, little endian",
-	                    "ELFDATA2MSB"];
-	
-	private static char[][] versionStrings = ["0", "1 (current)"];
-	
-	private static char[][] machineStrings = ["EM_NONE", "EM_M32", "EM_SPARC",
-	                       "EM_386 (Intel 80386)", "EM_68K", "EM_88K",
-	                       "EM_860", "EM_MIPS"];
-	
-	private char[] sectionTypeStr(uint n) {
-		if (n <= SHT_DYNSYM) {
-		    return sectionTypes[n];
-		}
-		else if (n >= SHT_LOPROC && n <= SHT_HIPROC) {
-		    return "[SHT_LOPROC..SHT_HIPROC]";
-		}
-		else if(n >= SHT_LOUSER && n <= SHT_HIUSER) {
-		    return "[SHT_LOUSER..SHT_HIUSER]";
-		}
-		return "";
-	}
-	
-	private char[] segmentTypeStr(uint n) {
-		if (n <= PT_SHLIB) {
-		    return segmentTypes[n];
-		}
-		else if (n >= PT_LOPROC && n <= PT_HIPROC) {
-		    return "[PT_LOPROC..PT_HIPROC]";
-		}
-		return "";
-	}
-	
-	private char[] objectTypeStr(uint n) {
-		if (n <= ET_CORE) {
-		    return objectTypes[n];
-		}
-		else if (n >= ET_LOPROC && n <= ET_HIPROC) {
-		    return "[ET_LOPROC..ET_HIPROC]";
-		}
-		return "";
-	}
-	
-	public this(){
-		sprint = new ExtSprintClass(1024);
-	}
-	
-	public char[] printElfHeader(Elf32_Ehdr hdr){
-		ubyte[] m = hdr.e_ident;
-		char[] result;
-		
-		result ~= sprint("  Magic:\t%02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X\n", m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8], m[9], m[10], m[11], m[12], m[13], m[14], m[15]);
-		result ~= sprint("  Class:\t\t\t\t%s\n", classStrings[m[EI_CLASS]]);
-		result ~= sprint("  Data:\t\t\t\t\t%s\n", dataStrings[m[EI_DATA]]);
-		result ~= sprint("  Version:\t\t\t\t%s\n", versionStrings[m[EI_VERSION]]);
-		result ~= sprint("  Type:\t\t\t\t\t%s\n", objectTypeStr(hdr.e_type));
-		result ~= sprint("  Machine:\t\t\t\t%s\n", machineStrings[hdr.e_machine]);
-		result ~= sprint("  Version:\t\t\t\t0x%x\n", hdr.e_version);
-		result ~= sprint("  Entry point address:\t\t\t0x%x\n", hdr.e_entry);
-		result ~= sprint("  Start of program headers:\t\t%s (bytes into the file)\n", hdr.e_phoff);
-		result ~= sprint("  Start of section headers:\t\t%s (bytes into the file)\n", hdr.e_shoff);
-		result ~= sprint("  Flags:\t\t\t\t0x%x\n", hdr.e_flags);
-		result ~= sprint("  Size of this header:\t\t\t%s (bytes)\n",  hdr.e_ehsize);
-		result ~= sprint("  Size of program headers:\t\t%s (bytes)\n", hdr.e_phentsize);
-		result ~= sprint("  Number of program headers:\t\t%s\n", hdr.e_phnum);
-		result ~= sprint("  Size of section headers:\t\t%s (bytes)\n",hdr.e_shentsize);
-		result ~= sprint("  Number of section headers:\t\t%s\n",hdr.e_shnum);
-		result ~= sprint("  Section header string table index:\t%s\n\n", hdr.e_shstrndx);
-		                 
-		return(result);
-	}
+import std.format;
 
-	public char[] printProgramHeader(uint n, Elf32_Phdr hdr){
-		char[] result;
-		
-		result ~= sprint("Program header %d\n", n);
-		result ~= sprint("  Type:\t\t\t\t%s\n", segmentTypeStr(hdr.p_type));
-		result ~= sprint("  Offset:\t\t\t0x%x\n", hdr.p_offset);
-		result ~= sprint("  Virtual address:\t\t0x%x\n", hdr.p_vaddr);
-		result ~= sprint("  Physical address:\t\t0x%x\n", hdr.p_paddr);
-		result ~= sprint("  Size in file:\t\t\t%d (in bytes)\n", hdr.p_filesz);
-		result ~= sprint("  Size in memory:\t\t%d (in bytes)\n", hdr.p_offset);
-		result ~= sprint("  Flags:\t\t\t0x%x\n", hdr.p_flags);
-		result ~= sprint("  Alignment:\t\t\t%d\n", hdr.p_align);
-		                 
-		return(result);
-	}
-	
-	public char[] printProgramHeaders(Elf32_Phdr[] headers){
-		char[] result = sprint("Program Headers: %d\n",headers.length);
-		foreach(idx,hdr; headers)  result ~= printProgramHeader(idx,hdr);
-		return result;
-	}
-	
-	public char[] printSectionHeader(uint n, char[] name, Elf32_Shdr hdr){
-		char[] result;
-		
-		result ~= sprint("Section header %d: %s\n", n, name);
-		result ~= sprint("  Type:\t\t\t\t%s\n", sectionTypeStr(hdr.sh_type));
-		result ~= sprint("  Flags:\t\t\t0x%x\n", hdr.sh_flags);
-		result ~= sprint("  Memory address:\t\t0x%x\n", hdr.sh_addr);
-		result ~= sprint("  File offset:\t\t\t%d\n", hdr.sh_offset);
-		result ~= sprint("  Size:\t\t\t\t%d (in bytes)\n", hdr.sh_size);
-		result ~= sprint("  Linked section:\t\t%d\n", hdr.sh_link);
-		result ~= sprint("  Info:\t\t\t\t%d\n", hdr.sh_info);
-		result ~= sprint("  Alignment:\t\t\t%d\n", hdr.sh_addralign);
-		result ~= sprint("  Entry size:\t\t\t%d (in bytes)\n", hdr.sh_entsize);
-		                 
-		return(result);
-	}
-	
-	public char[] printSectionHeaders(Elf32_Shdr[] headers){
-		char[] result = sprint("Headers: %d\n",headers.length);
-		char[] name = ""; //TODO
-		foreach(idx,hdr; headers)  result ~= printSectionHeader(idx,name,hdr);
-		return result;
-	}
-	
-	public char[] printSymbol(uint n, char[] name, Elf32_Sym sym){
-		char[] result;
-		
-		result ~= sprint("Symbol %d: %s\n", n, name);
-		result ~= sprint("  Value:\t\t\t0x%x\n", sym.st_value);
-		result ~= sprint("  Size:\t\t\t%d\n", sym.st_size);
-		result ~= sprint("  Info:\t\t\t%d\n", sym.st_info);
-		result ~= sprint("  Other:\t\t\t%d\n", sym.st_other);
-		result ~= sprint("  Section index:\t\t%d\n", sym.st_shndx);
-		                 
-		return(result);
-	}
-	
-	public char[] printSymbols(Elf32_Sym[char[]] symbols){
-		char[] result = sprint("Symbols: %d\n",symbols.length);
-		uint idx = 1;
-		foreach(name,sym; symbols){
-			result ~= printSymbol(idx,name,sym);
-			idx++;
-		}
-		return result;
-	}
+class ELFPrinter
+{
+    private static char[][] sectionTypes = ["SHT_NULL", "SHT_PROGBITS", "SHT_SYMTAB",
+                         "SHT_STRTAB", "SHT_RELA", "SHT_HASH",
+                         "SHT_DYNAMIC", "SHT_NOTE", "SHT_NOBITS",
+                         "SHT_REL", "SHT_SHLIB", "SHT_DYNSYM"];
+
+    private static char[][] segmentTypes = ["PT_NULL", "PT_LOAD", "PT_DYNAMIC",
+                         "PT_INTERP", "PT_NOTE", "PT_SHLIB",
+                         "PT_PHDR"];
+
+    private static char[][] objectTypes = ["ET_NONE", "ET_REL (Relocatable)",
+                        "ET_EXEC (Executable)", "ET_DYN (Dynamic)",
+                        "ET_CORE"];
+
+    private static char[][] classStrings = ["ELFCLASSNONE", "ELFCLASS32", "ELFCLASS64"];
+
+    private static char[][] dataStrings = ["ELFDATANONE (Invalid)",
+                        "2's complement, little endian",
+                        "ELFDATA2MSB"];
+
+    private static char[][] versionStrings = ["0", "1 (current)"];
+
+    private static char[][] machineStrings = ["EM_NONE", "EM_M32", "EM_SPARC",
+                           "EM_386 (Intel 80386)", "EM_68K", "EM_88K",
+                           "EM_860", "EM_MIPS"];
+
+    private char[] sectionTypeStr(uint n) {
+        if (n <= SHT_DYNSYM) {
+            return sectionTypes[n];
+        }
+        else if (n >= SHT_LOPROC && n <= SHT_HIPROC) {
+            return "[SHT_LOPROC..SHT_HIPROC]";
+        }
+        else if(n >= SHT_LOUSER && n <= SHT_HIUSER) {
+            return "[SHT_LOUSER..SHT_HIUSER]";
+        }
+        return "";
+    }
+
+    private char[] segmentTypeStr(uint n) {
+        if (n <= PT_SHLIB) {
+            return segmentTypes[n];
+        }
+        else if (n >= PT_LOPROC && n <= PT_HIPROC) {
+            return "[PT_LOPROC..PT_HIPROC]";
+        }
+        return "";
+    }
+
+    private char[] objectTypeStr(uint n) {
+        if (n <= ET_CORE) {
+            return objectTypes[n];
+        }
+        else if (n >= ET_LOPROC && n <= ET_HIPROC) {
+            return "[ET_LOPROC..ET_HIPROC]";
+        }
+        return "";
+    }
+
+    public this()
+    {
+
+    }
+
+    public char[] printElfHeader(Elf32_Ehdr hdr)
+    {
+        ubyte[] m = hdr.e_ident;
+        char[] result;
+
+        result.formattedWrite("  Magic:\t%02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X\n", m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8], m[9], m[10], m[11], m[12], m[13], m[14], m[15]);
+        result.formattedWrite("  Class:\t\t\t\t%s\n", classStrings[m[EI_CLASS]]);
+        result.formattedWrite("  Data:\t\t\t\t\t%s\n", dataStrings[m[EI_DATA]]);
+        result.formattedWrite("  Version:\t\t\t\t%s\n", versionStrings[m[EI_VERSION]]);
+        result.formattedWrite("  Type:\t\t\t\t\t%s\n", objectTypeStr(hdr.e_type));
+        result.formattedWrite("  Machine:\t\t\t\t%s\n", machineStrings[hdr.e_machine]);
+        result.formattedWrite("  Version:\t\t\t\t0x%x\n", hdr.e_version);
+        result.formattedWrite("  Entry point address:\t\t\t0x%x\n", hdr.e_entry);
+        result.formattedWrite("  Start of program headers:\t\t%s (bytes into the file)\n", hdr.e_phoff);
+        result.formattedWrite("  Start of section headers:\t\t%s (bytes into the file)\n", hdr.e_shoff);
+        result.formattedWrite("  Flags:\t\t\t\t0x%x\n", hdr.e_flags);
+        result.formattedWrite("  Size of this header:\t\t\t%s (bytes)\n",  hdr.e_ehsize);
+        result.formattedWrite("  Size of program headers:\t\t%s (bytes)\n", hdr.e_phentsize);
+        result.formattedWrite("  Number of program headers:\t\t%s\n", hdr.e_phnum);
+        result.formattedWrite("  Size of section headers:\t\t%s (bytes)\n",hdr.e_shentsize);
+        result.formattedWrite("  Number of section headers:\t\t%s\n",hdr.e_shnum);
+        result.formattedWrite("  Section header string table index:\t%s\n\n", hdr.e_shstrndx);
+
+        return result;
+    }
+
+    public char[] printProgramHeader(uint n, Elf32_Phdr hdr)
+    {
+        char[] result;
+
+        result.formattedWrite("Program header %d\n", n);
+        result.formattedWrite("  Type:\t\t\t\t%s\n", segmentTypeStr(hdr.p_type));
+        result.formattedWrite("  Offset:\t\t\t0x%x\n", hdr.p_offset);
+        result.formattedWrite("  Virtual address:\t\t0x%x\n", hdr.p_vaddr);
+        result.formattedWrite("  Physical address:\t\t0x%x\n", hdr.p_paddr);
+        result.formattedWrite("  Size in file:\t\t\t%d (in bytes)\n", hdr.p_filesz);
+        result.formattedWrite("  Size in memory:\t\t%d (in bytes)\n", hdr.p_offset);
+        result.formattedWrite("  Flags:\t\t\t0x%x\n", hdr.p_flags);
+        result.formattedWrite("  Alignment:\t\t\t%d\n", hdr.p_align);
+
+        return result;
+    }
+
+    public char[] printProgramHeaders(Elf32_Phdr[] headers)
+    {
+        char[] result = sprint("Program Headers: %d\n",headers.length);
+        foreach(idx,hdr; headers)  result ~= printProgramHeader(idx,hdr);
+        return result;
+    }
+
+    public char[] printSectionHeader(uint n, char[] name, Elf32_Shdr hdr)
+    {
+        char[] result;
+
+        result.formattedWrite("Section header %d: %s\n", n, name);
+        result.formattedWrite("  Type:\t\t\t\t%s\n", sectionTypeStr(hdr.sh_type));
+        result.formattedWrite("  Flags:\t\t\t0x%x\n", hdr.sh_flags);
+        result.formattedWrite("  Memory address:\t\t0x%x\n", hdr.sh_addr);
+        result.formattedWrite("  File offset:\t\t\t%d\n", hdr.sh_offset);
+        result.formattedWrite("  Size:\t\t\t\t%d (in bytes)\n", hdr.sh_size);
+        result.formattedWrite("  Linked section:\t\t%d\n", hdr.sh_link);
+        result.formattedWrite("  Info:\t\t\t\t%d\n", hdr.sh_info);
+        result.formattedWrite("  Alignment:\t\t\t%d\n", hdr.sh_addralign);
+        result.formattedWrite("  Entry size:\t\t\t%d (in bytes)\n", hdr.sh_entsize);
+
+        return result;
+    }
+
+    public char[] printSectionHeaders(Elf32_Shdr[] headers)
+    {
+        char[] result = sprint("Headers: %d\n",headers.length);
+        char[] name = ""; //TODO
+        foreach(idx,hdr; headers)  result ~= printSectionHeader(idx,name,hdr);
+        return result;
+    }
+
+    public char[] printSymbol(uint n, char[] name, Elf32_Sym sym)
+    {
+        char[] result;
+
+        result.formattedWrite("Symbol %d: %s\n", n, name);
+        result.formattedWrite("  Value:\t\t\t0x%x\n", sym.st_value);
+        result.formattedWrite("  Size:\t\t\t%d\n", sym.st_size);
+        result.formattedWrite("  Info:\t\t\t%d\n", sym.st_info);
+        result.formattedWrite("  Other:\t\t\t%d\n", sym.st_other);
+        result.formattedWrite("  Section index:\t\t%d\n", sym.st_shndx);
+
+        return result;
+    }
+
+    public char[] printSymbols(Elf32_Sym[char[]] symbols)
+    {
+        char[] result = sprint("Symbols: %d\n",symbols.length);
+        uint idx = 1;
+        foreach(name,sym; symbols)
+        {
+            result ~= printSymbol(idx,name,sym);
+            idx++;
+        }
+        return result;
+    }
 }

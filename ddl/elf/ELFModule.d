@@ -40,23 +40,26 @@ private import ddl.elf.ELFReader;
 private import ddl.elf.ELFPrinter;
 
 /**
-    An implementation of the abstract class DynamicModule for use 
-    with ELF (Executable and Linkable Format) object files. 
+    An implementation of the abstract class DynamicModule for use
+    with ELF (Executable and Linkable Format) object files.
 */
-class ELFModule : DynamicModule{
-	struct SegmentImage{
+class ELFModule : DynamicModule
+{
+	struct SegmentImage
+	{
 		void[] data;
 	}
-	
-	struct Fixup{
+
+	struct Fixup
+	{
 		uint targetIndex;
 		bool isExternStyleFixup;
 		bool isSegmentRelative;
 		void* destAddress;
 	}
-	
-	alias ExportSymbol* ExportSymbolPtr;
-	alias SegmentImage* SegmentImagePtr;
+
+	alias ExportSymbolPtr = ExportSymbol*;
+	alias SegmentImagePtr = SegmentImage*;
 
 	Fixup[] fixups;
 	SegmentImage[] segmentImages;
@@ -64,71 +67,82 @@ class ELFModule : DynamicModule{
 	ExportSymbolPtr[char[]] symbolXref;
 	char[] moduleName;
 	bool resolved;
-	
+
 	debug ELFBinary binary;
 
-	this(FileBuffer buffer){
+	this(FileBuffer buffer)
+	{
 		resolved = false;
 		loadBinary(new ELFReader(buffer));
 	}
-		
-	this(ELFReader reader){
+
+	this(ELFReader reader)
+	{
 		resolved = false;
 		loadBinary(reader);
 	}
-	
-	public char[] getName(){
+
+	public override char[] getName()
+	{
 		return moduleName;
 	}
-	
-	public ExportSymbol[] getSymbols(){
+
+	public override ExportSymbol[] getSymbols()
+	{
 		return symbols;
 	}
-	
-	public ExportSymbol* getSymbol(char[] name){
+
+	public override ExportSymbol* getSymbol(char[] name)
+	{
 		if(name in symbolXref) return symbolXref[name];
 		else return &ExportSymbol.NONE;
 	}
-	
-	public void resolveFixups(){
+
+	public override void resolveFixups()
+	{
 		Fixup[] remainingFixups;
-		
-		foreach(idx,fix; fixups) with(fix){
+
+		foreach(idx,fix; fixups) with(fix)
+		{
 			uint fixupValue;
 		}
-		
+
 		this.fixups = remainingFixups;
 	}
-	
-	public bool isResolved(){
+
+	public override bool isResolved()
+	{
 		if(resolved) return true;
-		
+
 		if(fixups.length > 0) return false;
-		foreach(sym; symbols){
+		foreach(sym; symbols)
+		{
 			if(sym.type != SymbolType.Strong) return false;
 		}
 		resolved = true;
 		return true;
 	}
-	
-	protected void loadBinary(ELFReader reader){
+
+	protected void loadBinary(ELFReader reader)
+	{
 		debug{} else{
 			ELFBinary binary;
 		}
 		binary = new ELFBinary();
 		binary.parse(reader);
-				
-		//TODO: analyze 
+
+		//TODO: analyze
 	}
-    
-	char[] toString(){
+
+	char[] toString()
+	{
 		char[] result = "";
 		ExtSprintClass sprint = new ExtSprintClass(1024);
-	
+
 		debug{
 			result = "ELF Binary Data: \n" ~ binary.toString();
 		}
-	
+
 		return result;
 	}
 }

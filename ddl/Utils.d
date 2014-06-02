@@ -26,26 +26,32 @@ module ddl.Utils;
 
 import std.format;
 
-size_t indexOf(T)(T[] str,T find){
-    foreach(idx,ch; str){
+size_t indexOf(T)(T[] str,T find)
+{
+    foreach(idx,ch; str)
+    {
         if(ch == find) return idx;
     }
     return str.length;
 }
 
-char[] dataDumper(void* data,uint length){
+char[] dataDumper(void* data,uint length)
+{
     char[] result = "";
     char[] buf2 = "";
     ubyte* ptr = cast(ubyte*)(cast(uint)data&0xFFFFFFF0); // start at nearest page
 
-    for(uint idx=0; idx<length; idx++,ptr++){
+    for(uint idx=0; idx<length; idx++,ptr++)
+    {
         ubyte b = *ptr;
-        if(idx % 16 == 0){
+        if(idx % 16 == 0)
+        {
              result.formattedWrite( " |  {0}\n  [{1:X8}] ", buf2, ptr );
              buf2 = "";
         }
 
-        if(ptr == data){
+        if(ptr == data)
+        {
             result ~= "*";
         }
         else{
@@ -55,7 +61,8 @@ char[] dataDumper(void* data,uint length){
         if(b < 16) result ~= "0"; //HACK: sprint doesn't left-pad correctly
         result.formattedWrite( "%0.2X", b );
 
-        if(b >= 32 && b <= 126){
+        if(b >= 32 && b <= 126)
+        {
             buf2 ~= cast(char)b;
         }
         else{
@@ -67,25 +74,30 @@ char[] dataDumper(void* data,uint length){
 }
 
 /*
-debug{
+debug
+{
     private import mango.log.Logger;
     private import mango.log.DateLayout;
 
     Logger ddlLog;
 
-    static this(){
+    static this()
+    {
         ddlLog = Logger.getLogger("ddl.logger");
         ddlLog.info("Logger Initalized");
         ddlLog.
     }
 
-    public void debugLog(...){
+    public void debugLog(...)
+    {
 
     }
 }*/
-debug{
+debug
+{
     private import tango.io.Stdout;
-    public void debugLog(V...)(char[] s,V args){
+    public void debugLog(V...)(char[] s,V args)
+    {
         Stdout.formatln(s,args);
         Stdout.flush();
     }

@@ -45,12 +45,14 @@ private import ddl.elf.ELFModule;
     for use with object files in ELF (Executable and Linkable Format).
     The object files can be standalone .o or embedded in archive files.
 */
-class ELFObjLoader : DynamicLibraryLoader{
+class ELFObjLoader : DynamicLibraryLoader
+{
     /**
         Returns the typename supported by this loader. Returns the
         static string "ELF".
     */
-    public char[] getLibraryType(){
+    public override char[] getLibraryType()
+    {
         return("ELF");
     }
 
@@ -59,11 +61,13 @@ class ELFObjLoader : DynamicLibraryLoader{
         The method checks if the supplied library starts with the ELF
         magic string, "\x7fELF".
     */
-    public bool canLoadLibrary(FileBuffer file){
+    public override bool canLoadLibrary(FileBuffer file)
+    {
         debug debugLog("Testing for ELF compliance");
         debug debugLog("from file: ", cast(char[])file.get(4,false));
         debug debugLog("magic header: \0x7ELF");
-    	if(file.data[0..4] == cast(ubyte[])"\x7fELF"c){
+    	if(file.data[0..4] == cast(ubyte[])"\x7fELF"c)
+        {
             debug debugLog("ELF header verified");
             return true;
         }
@@ -73,16 +77,17 @@ class ELFObjLoader : DynamicLibraryLoader{
     /**
         Loads the supplied library, returning an instance of ELFLibrary.
     */
-    public DynamicLibrary load(LoaderRegistry registry,FileBuffer file){
+    public override DynamicLibrary load(LoaderRegistry registry,FileBuffer file)
+    {
         ELFLibrary lib = new ELFLibrary();
 
         // load object format
         ELFModule mod = new ELFModule(file);
         lib.addModule(mod);
-                
+
 		// establish the correct attributes in the library
 		lib.setAttributes(mod.getAttributes);
-		lib.setAttribute("elf.filename",file.getPath.toString());     
+		lib.setAttribute("elf.filename",file.getPath.toString());
         return lib;
     }
 }

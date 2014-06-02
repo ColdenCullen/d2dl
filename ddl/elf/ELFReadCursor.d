@@ -29,23 +29,25 @@
 */
 module ddl.elf.ELFReadCursor;
 
-private import ddl.Utils;
+import ddl.Utils;
 
 class ELFReadCursor : ReadCursor
 {
-    public this(ubyte[] data){
+    public this(ubyte[] data)
+    {
         this.data = data;
         this.position = 0;
     }
 
-    public uint getStruct(void* result, uint size){
+    public override uint getStruct(void* result, uint size)
+    {
         ubyte* output = cast(ubyte*)result;
-        if (position + size <= data.length) {
+        if (position + size <= data.length)
+        {
             output[0..size] = data[position..position+size];
             position += size;
             return size;
         }
         return 0;
     }
-
 }
